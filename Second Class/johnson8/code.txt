@@ -1,0 +1,86 @@
+This is a bank program that has some of the basic action you can do with an account
+
+1. You're going to be able to open an account
+2. Get the information of said account
+3. Change the Pin of the account and all accounts made
+4. Deposit money into an account
+5. Transfer money between accounts
+6. Withdraw money from account
+7. Withdraw money in 5 dollar increments aka 5s,10s and 20s
+8. Deposit change pennies, nickels, dimes, quarters, half and whole dollars
+9. Close the account(s)
+10. Add monthly interest to all accounts
+11. Close out the session
+
+# Authentication
+There is a method that accepts user input
+asking for account number and pin and value checking to make sure the are valid variables
+
+# Create Account
+    To open the account you need to capture name and ssn 
+    which will create the new account object and append it to the bank class
+    From there the bank class will create and append a account number, mask the ssn, generate a pin and start out with a zero balance
+
+# Account Info
+    After opening an account give the user an option to print out the account information all getters
+    account #
+    owner
+    ssn
+    pin
+    balance
+
+# Change Pin
+    Make an option to change the pin number
+    check for the account and enter it with the account number and pin 
+    the account class should have a way to set the pin
+    take the users input for the new pin and set it
+
+# Deposit Money
+    A regular Deposit method 
+    check for the account and enter it with the account number and pin 
+    ask the user for money amount to Deposit
+    inside a deposit method on the account we should check the value passed is the right type
+    if it is add it and show the new balance
+
+# Transfer Money
+    A Transfer can only happen if there are two or more accounts    
+    check for the FROM account and enter it with the account number and pin
+    check for the TO account and enter it with the account number and pin
+    give the user the ability to deposit a positive value and error check that its not negative
+
+# Withdraw Money
+    A Withdrawal from an account    
+    check for the account and enter it with the account number and pin 
+    give the user the ability to withdrawal a positive value and error check that its not negative
+    if the withdrawal amount is more than available deny the withdrawal 
+    If the withdrawal is less than whats available Withdraw 
+
+# ATM Withdraw Money
+    An ATM withdrawal from the account
+    This is different than a regular withdrawal as we are withdrawing in 5 dollar increments aka 5s,10s and 20s
+    check for the account and enter it with the account number and pin 
+    error check that its divisible by 5 
+    have the user input what they what they want in 5s,10s and 20s totaling in the amount they asked for
+    the value asked for and totaling value in bills being withdrawn should match
+    if not cancel otherwise proceed 
+
+# Change Deposit
+    A Deposit of change to the account 
+    check for the account and enter it with the account number and pin 
+    tell the user they can deposit all coins, pennies, nickels, dimes, quarters, half and whole dollars
+    error check incase they add invalid coins
+    user input should being a string loop through string reduce them to number and add them up
+    to a dollar value
+    add it to the account
+
+# Close Account
+    Should be able to close accounts
+    check for the account and enter it with the account number and pin 
+    check for a balance before closing and have them do something with the money
+    If the account is clear close it out
+
+# Add Interest
+    Add monthly interest to accounts
+    give the user an input of amount to percentage to add monthly
+    have a method that can get the percentage and monthly increase
+    have it loop and recursively add up interest 

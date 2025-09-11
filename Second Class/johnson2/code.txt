@@ -1,0 +1,8 @@
+ Invite the player to a game
+ Setup the board with some loops to make a 2D matrix
+ Place X amount of ship in random locations on the matrix
+ Draw/Print the board/matrix out
+ Take user input for column and row location guess and error check
+ Determine if the users location guess matches up with a randomly places ship
+ Hit or Miss depending on guess
+ Once all ships have been hit end the loop completing the game

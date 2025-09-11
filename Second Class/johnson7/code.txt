@@ -1,0 +1,24 @@
+Try to add a parent root node and check if one is there
+If there is no node, create one and assign a new CreatureNode with a name.
+If there is one print warning that root already exists.
+
+Add a child to the parent
+Determine the parent node, check if it exists
+If parent does not exist print error.
+After we determine the parent pick which side it will ne added to, L or R
+Check that the side is empty first if it is create a new child node.
+Otherwise print that the side already has a child.
+Error check that the user enters valid side option
+If its not print invalid side error.
+
+Print the whole tree
+Recursive in-order tree traversal with depth-based indentation.
+Right children are printed appear at the top, followed by current node, then left children. top down
+
+Get the name for the ancestor we are looking for
+Have an empty array to append the ancestor to cause we are going to loop through it
+Left and right of the subtree and collect all ancestor names
+Otherwise there a no ancestors
+
+Break out of the loop
+Exit program

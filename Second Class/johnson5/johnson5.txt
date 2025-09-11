@@ -1,0 +1,35 @@
+Algorithm:
+1. Define a Folder class with:
+    A name 
+    A list of file names 
+    A list of subfolders 
+
+2. Add  methods:
+     add_file: Which will take a file name and add it to the folder. 
+     add_subfolder: Adds a subfolder (another Folder object) to the current folder. All folder names should be unique.
+     select_folder: Takes a folder name and makes that the current open folder from which methods will start from.
+     __count_files: Recursively counts the total number of files in the folder and all its subfolders. This method should also be private.
+     __eq__: Compares a folder and a string. They are equal if they have the same folder name.
+     __len__: Returns the total number of files in the folder and all its subfolders.
+     __str__: Returns a string representation of the folder, showing the folder name, its files, and its subfolders, using indentation for nested subfolders. There should be a menu item to print a folder.
+
+3. Make loop for the menu options:
+    Add files
+    Add subfolders
+    Switch folders
+    Print the folder structure
+
+4. Add File calls
+    call add_file method to append new file to list
+
+5. Add Folder calls
+    call add_subfolder method to append new folder to list and check if it exist
+
+6. Select folder calls
+    call select_folder method use equal method to compare to values
+
+7. Print folder calls
+    call the __len__ and __str__ methods in the case
+
+8. Exit Loop
+    Break the while loop and end the program

@@ -1,0 +1,7 @@
+{
+    "java.jdt.ls.java.home": "/Users/jjohnson/.local/share/mise/installs/java/microsoft-17.0.14",
+    "java.import.gradle.java.home": "/Users/jjohnson/.local/share/mise/installs/java/microsoft-17.0.14",
+    "debug.javascript.defaultRuntimeExecutable": {
+        "pwa-node": "/Users/jjohnson/.local/share/mise/shims/node"
+    }
+}

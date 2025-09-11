@@ -1,0 +1,10 @@
+Invite the user to a game
+Generate a number between 1 and 100
+Loop through game and limit attempts... cause who wants to guess forever
+Ask the user to guess
+If the guess is correct end loop and display a message
+If the guess is wrong give a hint and tell the user to try again
+Give the user an extra randomized hint and add more if there are repeat failures
+If the users guess isn't number trigger a value error
+After 4 attempts the game is completed regardless of success and a message is displayed
+

@@ -1,0 +1,26 @@
+Invite the player to the Zoo
+
+Give menu options
+    Add Animals
+        Prompt Animal type options
+        Collect specific animal data (name, species, fur color, weight, height, gender)
+        Create new animal object and append to zoo
+    
+    Print All Animals
+        Loop through the zoo and prints them out
+
+    Print specific animal type
+        Prompt user to pick Animal option
+        Filter the zoo by isinstance and print the matching Animals
+
+    Exit
+        End the loop and say goodbye
+
+    Catch all for invalid choice
+
+
+For each Animal 
+    Create instance
+    With an attribute for name and a species
+    Function for a sound as a string
+    Function for info that prints out a string with information 
