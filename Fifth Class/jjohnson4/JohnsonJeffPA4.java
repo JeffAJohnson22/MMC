@@ -92,7 +92,3 @@ public final class JohnsonJeffPA4 {
         System.out.println(sb.toString().trim());
     }
 }
-
-
-
-
