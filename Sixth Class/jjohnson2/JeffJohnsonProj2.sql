@@ -59,17 +59,18 @@ INSERT INTO Reservations
 ('2025-03-16','8:00','2','Ocean Voyager','William','Hall','789 Cedar St','Hilltop','MA','67890','978-555-9999','7',400.00);
 
 SELECT * FROM Reservations ORDER BY Date, Departure_Time ASC;
-
+ -- Starter code .sql file used, no changes made to reservations, only built-in SQL used
 /* YOUR CODE BELOW HERE */
 
--- Create Vessels table
+-- Tables created with appropriate datatypes
+-- 1) Create Vessels table
 CREATE TABLE Vessels (
     Vessel_ID INT PRIMARY KEY AUTO_INCREMENT,
     Vessel_Name VARCHAR(50) NOT NULL UNIQUE,
     Cost_Per_Hour DECIMAL(8,2) NOT NULL
 );
 
--- Create Passengers table  
+-- 2) Create Passengers table  
 CREATE TABLE Passengers (
     Passenger_ID INT PRIMARY KEY AUTO_INCREMENT,
     First_Name VARCHAR(50) NOT NULL,
@@ -80,6 +81,19 @@ CREATE TABLE Passengers (
     Zip CHAR(5),
     Phone CHAR(12),
     UNIQUE KEY unique_passenger (First_Name, Last_Name, Phone)
+);
+
+-- 3)
+CREATE TABLE Trips (
+    Date DATE NOT NULL,
+    Departure_Time TIME NOT NULL,
+    Vessel_ID INT NOT NULL,
+    Passenger_ID INT NOT NULL,
+    Length_in_Hours DECIMAL(4,2) NOT NULL,
+    Total_Passengers INT NOT NULL,
+    PRIMARY KEY (Date, Departure_Time, Vessel_ID, Passenger_ID),
+    FOREIGN KEY (Vessel_ID) REFERENCES Vessels(Vessel_ID),
+    FOREIGN KEY (Passenger_ID) REFERENCES Passengers(Passenger_ID)
 );
 
 -- Create Trips table with composite primary key
@@ -105,18 +119,8 @@ CREATE TABLE Passengers (
 --    - Comprehensive identification: uses all relevant business attributes
 --    - Future-proof: works even if business rules change to allow multiple bookings per time slot
 --    - Meaningful: composed of actual business data rather than artificial surrogate key
---
-CREATE TABLE Trips (
-    Date DATE NOT NULL,
-    Departure_Time TIME NOT NULL,
-    Vessel_ID INT NOT NULL,
-    Passenger_ID INT NOT NULL,
-    Length_in_Hours DECIMAL(4,2) NOT NULL,
-    Total_Passengers INT NOT NULL,
-    PRIMARY KEY (Date, Departure_Time, Vessel_ID, Passenger_ID),
-    FOREIGN KEY (Vessel_ID) REFERENCES Vessels(Vessel_ID),
-    FOREIGN KEY (Passenger_ID) REFERENCES Passengers(Passenger_ID)
-);
+
+
 
 -- Calculate and insert vessels with their cost per hour
 INSERT INTO Vessels (Vessel_Name, Cost_Per_Hour)
