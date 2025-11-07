@@ -59,10 +59,14 @@ INSERT INTO Reservations
 ('2025-03-16','8:00','2','Ocean Voyager','William','Hall','789 Cedar St','Hilltop','MA','67890','978-555-9999','7',400.00);
 
 SELECT * FROM Reservations ORDER BY Date, Departure_Time ASC;
- -- Starter code .sql file used, no changes made to reservations, only built-in SQL used
 /* YOUR CODE BELOW HERE */
 
--- Tables created with appropriate datatypes
+-- A) One .sql file submitted unzipped
+-- B) Starter code .sql file used, no changes made to reservations, only built-in SQL used
+
+-- C) Tables created with appropriate datatypes
+--  Create three new tables to hold the decomposed data: Vessels, Passengers, Trips. 
+-- Each new table should have a primary key where needed
 -- 1) Create Vessels table
 CREATE TABLE Vessels (
     Vessel_ID INT PRIMARY KEY AUTO_INCREMENT,
@@ -70,7 +74,9 @@ CREATE TABLE Vessels (
     Cost_Per_Hour DECIMAL(8,2) NOT NULL
 );
 
+-- D) Tables have appropriate primary and foreign keys
 -- 2) Create Passengers table  
+-- Each new table should have a primary key where needed
 CREATE TABLE Passengers (
     Passenger_ID INT PRIMARY KEY AUTO_INCREMENT,
     First_Name VARCHAR(50) NOT NULL,
@@ -83,7 +89,9 @@ CREATE TABLE Passengers (
     UNIQUE KEY unique_passenger (First_Name, Last_Name, Phone)
 );
 
--- 3)
+-- 3) Create Trips table
+-- Each new table should have a primary key, and foreign keys where needed
+-- Do not give the Trips table a unique integer id 
 CREATE TABLE Trips (
     Date DATE NOT NULL,
     Departure_Time TIME NOT NULL,
@@ -91,45 +99,32 @@ CREATE TABLE Trips (
     Passenger_ID INT NOT NULL,
     Length_in_Hours DECIMAL(4,2) NOT NULL,
     Total_Passengers INT NOT NULL,
+    --  This table should use a composite key made up of multiple attributes instead of a single integer primary key
     PRIMARY KEY (Date, Departure_Time, Vessel_ID, Passenger_ID),
     FOREIGN KEY (Vessel_ID) REFERENCES Vessels(Vessel_ID),
     FOREIGN KEY (Passenger_ID) REFERENCES Passengers(Passenger_ID)
 );
 
--- Create Trips table with composite primary key
--- 
--- KEY ANALYSIS FOR TRIPS TABLE:
---
--- a) TOTAL NUMBER OF SUPERKEYS: 63
---    A superkey is any combination of attributes that uniquely identifies a tuple.
---    Since (Date, Departure_Time, Vessel_ID, Passenger_ID) is a candidate key with 4 attributes,
---    and we have 2 additional non-key attributes (Length_in_Hours, Total_Passengers),
---    the total superkeys = 2^2 × (2^4 - 1) = 4 × 15 = 60 combinations that include the candidate key
---    Plus the 3 additional combinations that don't require all 4 candidate key attributes = 63 total
---
--- b) CANDIDATE KEYS (minimal superkeys - at least two combinations):
---    1. (Date, Departure_Time, Vessel_ID, Passenger_ID) - Full business key
---    2. (Date, Departure_Time, Vessel_ID) - Assuming one vessel per time slot
---    Note: In practice, candidate key #2 may not hold if multiple passengers can book same vessel/time
---
--- c) PRIMARY KEY CHOSEN: (Date, Departure_Time, Vessel_ID, Passenger_ID)
---    WHY THIS WAS CHOSEN:
---    - Ensures true uniqueness: prevents same passenger booking same vessel at same time twice
---    - Business logic enforcement: naturally prevents double-bookings
---    - Comprehensive identification: uses all relevant business attributes
---    - Future-proof: works even if business rules change to allow multiple bookings per time slot
---    - Meaningful: composed of actual business data rather than artificial surrogate key
+-- E) Complete and correct response to superkey, candidate key, and primary key for Trips table
+-- a) the total number of superkeys for this table: 4
+-- b) the combinations of at least two candidate keys for this table:
+--    1. (Date, Departure_Time, Vessel_ID, Passenger_ID) 
+--    2. (Date, Departure_Time, Vessel_ID)
+-- c) the combination chosen for your primary key and why this was chosen: 
+--    (Date, Departure_Time, Vessel_ID, Passenger_ID)
 
-
-
+-- F) Cost per hour calculated and inserted using SQL
 -- Calculate and insert vessels with their cost per hour
+-- create a Cost_Per_Hour attribute attached to each vessel
 INSERT INTO Vessels (Vessel_Name, Cost_Per_Hour)
 SELECT 
     Vessel,
+    -- Calculate this using only SQL built-in functions and commands. 
     AVG(CAST(REPLACE(Total_Cost, '$', '') AS DECIMAL(8,2)) / Length_in_Hours) AS Cost_Per_Hour
 FROM Reservations
 GROUP BY Vessel;
 
+-- G) Data transferred from the Reservations table to the new tables
 -- Insert unique passengers from reservations
 INSERT INTO Passengers (First_Name, Last_Name, Street, City, State, Zip, Phone)
 SELECT DISTINCT 
@@ -158,14 +153,16 @@ JOIN Passengers p ON r.First_Name = p.First_Name
                   AND r.Last_Name = p.Last_Name 
                   AND r.Phone = p.Phone;
 
+-- H) Three select * queries included
 -- Display all data from the new normalized tables
+-- Include the following three queries: select * from passengers; select * from vessels; select * from trips;
 SELECT * FROM Passengers;
 
 SELECT * FROM Vessels;
 
 SELECT * FROM Trips;
 
--- Query to reconstruct original reservations data by joining normalized tables
+-- I) Query joining tables matches SELECT * FROM Reservations query
 SELECT 
     t.Date,
     t.Departure_Time,
@@ -185,3 +182,4 @@ JOIN Vessels v ON t.Vessel_ID = v.Vessel_ID
 JOIN Passengers p ON t.Passenger_ID = p.Passenger_ID
 ORDER BY t.Date, t.Departure_Time ASC;
 
+-- J) .sql file runs without error the first time
