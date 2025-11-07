@@ -136,6 +136,9 @@ SELECT DISTINCT
     Zip, 
     Phone
 FROM Reservations
+WHERE First_Name IS NOT NULL 
+  AND Last_Name IS NOT NULL 
+  AND Phone IS NOT NULL
 ORDER BY Last_Name, First_Name;
 
 -- Insert trips data linking to vessels and passengers
@@ -148,19 +151,24 @@ SELECT
     r.Length_in_Hours,
     r.Total_Passengers
 FROM Reservations r
-JOIN Vessels v ON r.Vessel = v.Vessel_Name
-JOIN Passengers p ON r.First_Name = p.First_Name 
-                  AND r.Last_Name = p.Last_Name 
-                  AND r.Phone = p.Phone;
+INNER JOIN Vessels v ON r.Vessel = v.Vessel_Name
+INNER JOIN Passengers p ON r.First_Name = p.First_Name 
+                        AND r.Last_Name = p.Last_Name 
+                        AND r.Phone = p.Phone
+WHERE r.Date IS NOT NULL 
+  AND r.Departure_Time IS NOT NULL 
+  AND v.Vessel_ID IS NOT NULL 
+  AND p.Passenger_ID IS NOT NULL;
 
 -- H) Three select * queries included
 -- Display all data from the new normalized tables
 -- Include the following three queries: select * from passengers; select * from vessels; select * from trips;
-SELECT * FROM Passengers;
 
-SELECT * FROM Vessels;
+SELECT * FROM Passengers WHERE Passenger_ID IS NOT NULL;
 
-SELECT * FROM Trips;
+SELECT * FROM Vessels WHERE Vessel_ID IS NOT NULL;
+
+SELECT * FROM Trips WHERE Date IS NOT NULL;
 
 -- I) Query joining tables matches SELECT * FROM Reservations query
 SELECT 
