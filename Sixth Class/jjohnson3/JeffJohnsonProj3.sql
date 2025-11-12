@@ -109,3 +109,25 @@ ORDER BY SUM(CAST(REPLACE(REPLACE(`Amount Paid`, '$', ''), ',', '') AS DECIMAL(1
 -- Call the view to display total revenue by vessel
 SELECT * FROM `Total Revenue by Vessel`;
 
+-- Create getVesselId function
+DELIMITER //
+CREATE FUNCTION getVesselId(vesselName VARCHAR(50))
+RETURNS INT
+DETERMINISTIC
+READS SQL DATA
+BEGIN
+    DECLARE vesselId INT;
+    
+    SELECT ID INTO vesselId
+    FROM vessels
+    WHERE Vessel = vesselName
+    LIMIT 1;
+    
+    IF vesselId IS NULL THEN
+        RETURN -1;
+    ELSE
+        RETURN vesselId;
+    END IF;
+END//
+DELIMITER ;
+
