@@ -217,3 +217,41 @@ DELIMITER ;
 -- Call the procedure to add a new vessel
 CALL addVessel('Storm Chaser', 175.00);
 
+-- Create addTrip procedure
+DELIMITER //
+CREATE PROCEDURE addTrip(
+    IN t_vesselName VARCHAR(50),
+    IN t_firstName VARCHAR(50),
+    IN t_lastName VARCHAR(50),
+    IN t_date DATE,
+    IN t_departureTime TIME,
+    IN t_lengthInHours DECIMAL(5,2),
+    IN t_totalPassengers INT
+)
+BEGIN
+    DECLARE v_vesselId INT;
+    DECLARE v_passengerId INT;
+    
+    -- Get vessel ID using the getVesselId function
+    SET v_vesselId = getVesselId(t_vesselName);
+    
+    -- Get passenger ID using the getPassengerId function
+    SET v_passengerId = getPassengerId(t_firstName, t_lastName);
+    
+    -- Check if both vessel and passenger were found
+    IF v_vesselId = -1 THEN
+        SELECT CONCAT('Error: Vessel "', t_vesselName, '" not found in the database.') AS Result;
+    ELSEIF v_passengerId = -1 THEN
+        SELECT CONCAT('Error: Passenger "', t_firstName, ' ', t_lastName, '" not found in the database.') AS Result;
+    ELSE
+        -- Both found, insert the trip
+        INSERT INTO trips (Vessel_ID, Passenger_ID, Date, Departure_Time, Length_in_Hours, Total_Passengers)
+        VALUES (v_vesselId, v_passengerId, t_date, t_departureTime, t_lengthInHours, t_totalPassengers);
+        SELECT CONCAT('Trip added successfully for ', t_firstName, ' ', t_lastName, ' on ', t_vesselName, ' at ', t_date, ' ', t_departureTime) AS Result;
+    END IF;
+END//
+DELIMITER ;
+
+-- Call the procedure to add a new trip using the new passenger and vessel
+CALL addTrip('Storm Chaser', 'David', 'Williams', '2025-03-20', '10:00:00', 2.5, 4);
+
