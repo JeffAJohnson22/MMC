@@ -97,3 +97,15 @@ ORDER BY t.Date DESC, t.Departure_Time DESC;
 -- Call the view to display all trips
 SELECT * FROM `All Trips`;
 
+-- Create Total Revenue by Vessel view using All Trips as datasource
+CREATE VIEW `Total Revenue by Vessel` AS
+SELECT 
+    `Vessel Name`,
+    CONCAT('$', FORMAT(SUM(CAST(REPLACE(REPLACE(`Amount Paid`, '$', ''), ',', '') AS DECIMAL(10,2))), 2)) AS `Revenue`
+FROM `All Trips`
+GROUP BY `Vessel Name`
+ORDER BY SUM(CAST(REPLACE(REPLACE(`Amount Paid`, '$', ''), ',', '') AS DECIMAL(10,2))) DESC;
+
+-- Call the view to display total revenue by vessel
+SELECT * FROM `Total Revenue by Vessel`;
+
