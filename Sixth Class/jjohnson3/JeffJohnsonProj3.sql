@@ -131,3 +131,60 @@ BEGIN
 END//
 DELIMITER ;
 
+-- Create getPassengerId function
+DELIMITER //
+CREATE FUNCTION getPassengerId(firstName VARCHAR(50), lastName VARCHAR(50))
+RETURNS INT
+DETERMINISTIC
+READS SQL DATA
+BEGIN
+    DECLARE passengerId INT;
+    
+    SELECT ID INTO passengerId
+    FROM passengers
+    WHERE First_Name = firstName AND Last_Name = lastName
+    LIMIT 1;
+    
+    IF passengerId IS NULL THEN
+        RETURN -1;
+    ELSE
+        RETURN passengerId;
+    END IF;
+END//
+DELIMITER ;
+
+-- Create addPassenger procedure
+DELIMITER //
+CREATE PROCEDURE addPassenger(
+    IN p_firstName VARCHAR(50),
+    IN p_lastName VARCHAR(50),
+    IN p_street VARCHAR(50),
+    IN p_city VARCHAR(50),
+    IN p_state CHAR(2),
+    IN p_zip CHAR(5),
+    IN p_phone CHAR(12),
+    IN p_getsSeasick TINYINT
+)
+BEGIN
+    DECLARE existingId INT;
+    
+    -- Check if passenger already exists
+    SELECT ID INTO existingId
+    FROM passengers
+    WHERE First_Name = p_firstName AND Last_Name = p_lastName
+    LIMIT 1;
+    
+    -- If passenger doesn't exist, add them
+    IF existingId IS NULL THEN
+        INSERT INTO passengers (First_Name, Last_Name, Street, City, State, ZIP, phone, getsSeasick)
+        VALUES (p_firstName, p_lastName, p_street, p_city, p_state, p_zip, p_phone, p_getsSeasick);
+        SELECT CONCAT('Passenger ', p_firstName, ' ', p_lastName, ' added successfully with ID: ', LAST_INSERT_ID()) AS Result;
+    ELSE
+        SELECT CONCAT('Passenger ', p_firstName, ' ', p_lastName, ' already exists with ID: ', existingId) AS Result;
+    END IF;
+END//
+DELIMITER ;
+
+-- Call the procedure to add a new passenger
+CALL addPassenger('David', 'Williams', '999 Cedar Ln', 'Springfield', 'MA', '78901', '413-555-9999', 0);
+
