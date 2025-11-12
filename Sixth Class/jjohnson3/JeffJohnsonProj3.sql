@@ -79,4 +79,21 @@ INSERT INTO `trips` VALUES
 
 /* Add your code below here */
 
+-- Create All Trips
+CREATE VIEW `All Trips` AS
+SELECT 
+    CONCAT(DATE_FORMAT(t.Date, '%M %e, %Y'), ' at ', DATE_FORMAT(t.Departure_Time, '%h:%i %p')) AS `Date and Time`,
+    v.Vessel AS `Vessel Name`,
+    CONCAT(p.First_Name, ' ', p.Last_Name) AS `Passenger Name`,
+    CONCAT(p.Street, ', ', p.City, ', ', p.State, ' ', p.ZIP) AS `Passenger Address`,
+    p.phone AS `Passenger Phone`,
+    CONCAT(t.Length_in_Hours, ' hours') AS `Voyage Length`,
+    CONCAT('$', FORMAT(v.Cost_Per_Hour * t.Length_in_Hours, 2)) AS `Amount Paid`
+FROM trips t
+JOIN vessels v ON t.Vessel_ID = v.ID
+JOIN passengers p ON t.Passenger_ID = p.ID
+ORDER BY t.Date DESC, t.Departure_Time DESC;
+
+-- Call the view to display all trips
+SELECT * FROM `All Trips`;
 
