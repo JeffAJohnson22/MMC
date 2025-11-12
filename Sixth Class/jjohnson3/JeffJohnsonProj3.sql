@@ -188,3 +188,32 @@ DELIMITER ;
 -- Call the procedure to add a new passenger
 CALL addPassenger('David', 'Williams', '999 Cedar Ln', 'Springfield', 'MA', '78901', '413-555-9999', 0);
 
+-- Create addVessel procedure
+DELIMITER //
+CREATE PROCEDURE addVessel(
+    IN v_vesselName VARCHAR(50),
+    IN v_costPerHour DECIMAL(6,2)
+)
+BEGIN
+    DECLARE existingId INT;
+    
+    -- Check if vessel already exists
+    SELECT ID INTO existingId
+    FROM vessels
+    WHERE Vessel = v_vesselName
+    LIMIT 1;
+    
+    -- If vessel doesn't exist, add it
+    IF existingId IS NULL THEN
+        INSERT INTO vessels (Vessel, Cost_Per_Hour)
+        VALUES (v_vesselName, v_costPerHour);
+        SELECT CONCAT('Vessel ', v_vesselName, ' added successfully with ID: ', LAST_INSERT_ID()) AS Result;
+    ELSE
+        SELECT CONCAT('Vessel ', v_vesselName, ' already exists with ID: ', existingId) AS Result;
+    END IF;
+END//
+DELIMITER ;
+
+-- Call the procedure to add a new vessel
+CALL addVessel('Storm Chaser', 175.00);
+
