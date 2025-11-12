@@ -255,3 +255,8 @@ DELIMITER ;
 -- Call the procedure to add a new trip using the new passenger and vessel
 CALL addTrip('Storm Chaser', 'David', 'Williams', '2025-03-20', '10:00:00', 2.5, 4);
 
+-- Call the views again to show new data loaded successfully
+SELECT * FROM `All Trips`;
+
+SELECT * FROM `Total Revenue by Vessel`;
+
