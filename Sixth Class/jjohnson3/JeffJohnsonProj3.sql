@@ -118,9 +118,14 @@ RETURNS INT
 DETERMINISTIC
 BEGIN
     DECLARE vesselId INT;
-    DECLARE EXIT HANDLER FOR NOT FOUND SET vesselId = -1;
+    
     SELECT ID INTO vesselId FROM vessels WHERE Vessel = vesselName;
-    RETURN vesselId;
+    
+    IF vesselId IS NULL THEN
+        RETURN -1;
+    ELSE
+        RETURN vesselId;
+    END IF;
 END $$
 DELIMITER ;
 
@@ -131,9 +136,14 @@ RETURNS INT
 DETERMINISTIC
 BEGIN
     DECLARE passengerId INT;
-    DECLARE EXIT HANDLER FOR NOT FOUND SET passengerId = -1;
+    
     SELECT ID INTO passengerId FROM passengers WHERE First_Name = firstName AND Last_Name = lastName;
-    RETURN passengerId;
+    
+    IF passengerId IS NULL THEN
+        RETURN -1;
+    ELSE
+        RETURN passengerId;
+    END IF;
 END $$
 DELIMITER ;
 
