@@ -109,7 +109,7 @@ FROM trips t
 JOIN vessels v ON t.Vessel_ID = v.ID
 GROUP BY v.Vessel
 ORDER BY SUM(t.Length_in_Hours * v.Cost_Per_Hour) DESC;
-
+SELECT * FROM `Total Revenue by Vessel`;
 
 -- Create a function called "getVesselId" that gets the Vessel id number based on its name. It should return -1 if not found. 
 DELIMITER $$
