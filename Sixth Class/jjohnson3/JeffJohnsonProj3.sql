@@ -92,7 +92,7 @@ SELECT
     CONCAT('$', FORMAT(t.Length_in_Hours * v.Cost_Per_Hour, 2)) AS `Amount Paid`
 FROM trips t
 JOIN vessels v ON t.Vessel_ID = v.ID
-JOIN passengers p ON t.Passenger_ID = p.ID;
+JOIN passengers p ON t.Passenger_ID = p.ID
 -- Sort this by date/time with the most recent Voyages at the top. You will need to combine text fields and perform mathematical operations on multiple columns to achieve this. Format dates/times so that non-technical users will understand them.
 ORDER BY t.Date DESC, t.Departure_Time DESC;
 
@@ -158,7 +158,7 @@ BEGIN
 END $$
 DELIMITER ;
 
-CALL addPassenger('Vegeta', 'Breifs', 'WST', 'Capsule Corp', 'West City', '3338926', '451-312-5524');  
+CALL addPassenger('Vegeta', 'Breifs', '123 Capsule St', 'Capsule Corp', 'WC', '33389', '451-312-5524');  
 
 -- Create a procedure called "addVessel" that adds a new Vessel to the Vessel table. It should handle the case when a Vessel with the same name already exists. It should handle the case where a match isn't found for a vessel.
 DELIMITER $$
@@ -211,6 +211,7 @@ DELIMITER ;
 
 -- Add at least one new trip using the new passenger and vessel added in steps 7 and 8 above.
 CALL addTrip('A Saiyans Pride', 'Vegeta', 'Breifs', '2026-03-22', '10:00:00', 5.00, 4);
+CALL addVessel('The Legendary One', 500.00);
 CALL addTrip('The Legendary One', 'Broly', 'Tara', '2026-04-22', '5:00:00', 2.5, 4);
 
 -- Call the "All Trips" and "Total Revenue by Vessel" views again to show your new data loaded successfully
