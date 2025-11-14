@@ -79,184 +79,140 @@ INSERT INTO `trips` VALUES
 
 /* Add your code below here */
 
--- Create All Trips
+-- Create AND call a view called "All Trips" that displays one row per voyage and has the following column headers: Date and Time, Vessel Name, Passenger Name, Passenger Address, Passenger Phone, Voyage Length, and Amount Paid.
+
 CREATE VIEW `All Trips` AS
 SELECT 
-    CONCAT(DATE_FORMAT(t.Date, '%M %e, %Y'), ' at ', DATE_FORMAT(t.Departure_Time, '%h:%i %p')) AS `Date and Time`,
+    CONCAT(t.Date, ' ', t.Departure_Time) AS `Date and Time`,
     v.Vessel AS `Vessel Name`,
     CONCAT(p.First_Name, ' ', p.Last_Name) AS `Passenger Name`,
     CONCAT(p.Street, ', ', p.City, ', ', p.State, ' ', p.ZIP) AS `Passenger Address`,
     p.phone AS `Passenger Phone`,
     CONCAT(t.Length_in_Hours, ' hours') AS `Voyage Length`,
-    CONCAT('$', FORMAT(v.Cost_Per_Hour * t.Length_in_Hours, 2)) AS `Amount Paid`
+    CONCAT('$', FORMAT(t.Length_in_Hours * v.Cost_Per_Hour, 2)) AS `Amount Paid`
 FROM trips t
 JOIN vessels v ON t.Vessel_ID = v.ID
-JOIN passengers p ON t.Passenger_ID = p.ID
+JOIN passengers p ON t.Passenger_ID = p.ID;
+-- Sort this by date/time with the most recent Voyages at the top. You will need to combine text fields and perform mathematical operations on multiple columns to achieve this. Format dates/times so that non-technical users will understand them.
 ORDER BY t.Date DESC, t.Departure_Time DESC;
 
 -- Call the view to display all trips
 SELECT * FROM `All Trips`;
 
--- Create Total Revenue by Vessel view using All Trips as datasource
+-- Create AND call a view called "Total Revenue by Vessel" that uses the above view as a datasource, sorted highest to lowest revenue.
+-- It should have column headers named Vessel Name and Revenue. The Revenue column should sum the revenue for each vessel.
 CREATE VIEW `Total Revenue by Vessel` AS
 SELECT 
-    `Vessel Name`,
-    CONCAT('$', FORMAT(SUM(CAST(REPLACE(REPLACE(`Amount Paid`, '$', ''), ',', '') AS DECIMAL(10,2))), 2)) AS `Revenue`
-FROM `All Trips`
-GROUP BY `Vessel Name`
-ORDER BY SUM(CAST(REPLACE(REPLACE(`Amount Paid`, '$', ''), ',', '') AS DECIMAL(10,2))) DESC;
+    v.Vessel AS `Vessel Name`,
+    CONCAT('$', FORMAT(SUM(t.Length_in_Hours * v.Cost_Per_Hour), 2)) AS `Revenue`
+FROM trips t
+JOIN vessels v ON t.Vessel_ID = v.ID
+GROUP BY v.Vessel
+ORDER BY SUM(t.Length_in_Hours * v.Cost_Per_Hour) DESC;
 
--- Call the view to display total revenue by vessel
-SELECT * FROM `Total Revenue by Vessel`;
 
--- Create getVesselId function
-DELIMITER //
+-- Create a function called "getVesselId" that gets the Vessel id number based on its name. It should return -1 if not found. 
+DELIMITER $$
 CREATE FUNCTION getVesselId(vesselName VARCHAR(50))
 RETURNS INT
 DETERMINISTIC
-READS SQL DATA
 BEGIN
     DECLARE vesselId INT;
-    
-    SELECT ID INTO vesselId
-    FROM vessels
-    WHERE Vessel = vesselName
-    LIMIT 1;
-    
-    IF vesselId IS NULL THEN
-        RETURN -1;
-    ELSE
-        RETURN vesselId;
-    END IF;
-END//
+    DECLARE EXIT HANDLER FOR NOT FOUND SET vesselId = -1;
+    SELECT ID INTO vesselId FROM vessels WHERE Vessel = vesselName;
+    RETURN vesselId;
+END $$
 DELIMITER ;
 
--- Create getPassengerId function
-DELIMITER //
+-- Create a function called "getPassengerId" the Passenger id number based on their name. It should return -1 if not found. 
+DELIMITER $$
 CREATE FUNCTION getPassengerId(firstName VARCHAR(50), lastName VARCHAR(50))
 RETURNS INT
 DETERMINISTIC
-READS SQL DATA
 BEGIN
     DECLARE passengerId INT;
-    
-    SELECT ID INTO passengerId
-    FROM passengers
-    WHERE First_Name = firstName AND Last_Name = lastName
-    LIMIT 1;
-    
-    IF passengerId IS NULL THEN
-        RETURN -1;
-    ELSE
-        RETURN passengerId;
-    END IF;
-END//
+    DECLARE EXIT HANDLER FOR NOT FOUND SET passengerId = -1;
+    SELECT ID INTO passengerId FROM passengers WHERE First_Name = firstName AND Last_Name = lastName;
+    RETURN passengerId;
+END $$
 DELIMITER ;
 
--- Create addPassenger procedure
-DELIMITER //
+-- Create a procedure called "addPassenger" that adds a new Passenger to the Passenger table. It should handle the case when a Passenger with the same name already exists.  It should handle the case where a match isn't found for a passenger.
+DELIMITER $$
 CREATE PROCEDURE addPassenger(
-    IN p_firstName VARCHAR(50),
-    IN p_lastName VARCHAR(50),
-    IN p_street VARCHAR(50),
-    IN p_city VARCHAR(50),
-    IN p_state CHAR(2),
-    IN p_zip CHAR(5),
-    IN p_phone CHAR(12),
-    IN p_getsSeasick TINYINT
+    IN p_First_Name VARCHAR(50),
+    IN p_Last_Name VARCHAR(50),
+    IN p_Street VARCHAR(50),  
+    IN p_City VARCHAR(50),
+    IN p_State CHAR(2),
+    IN p_ZIP CHAR(5),
+    IN p_phone CHAR(12)
 )
 BEGIN
     DECLARE existingId INT;
-    
-    -- Check if passenger already exists
-    SELECT ID INTO existingId
-    FROM passengers
-    WHERE First_Name = p_firstName AND Last_Name = p_lastName
-    LIMIT 1;
-    
-    -- If passenger doesn't exist, add them
-    IF existingId IS NULL THEN
-        INSERT INTO passengers (First_Name, Last_Name, Street, City, State, ZIP, phone, getsSeasick)
-        VALUES (p_firstName, p_lastName, p_street, p_city, p_state, p_zip, p_phone, p_getsSeasick);
-        SELECT CONCAT('Passenger ', p_firstName, ' ', p_lastName, ' added successfully with ID: ', LAST_INSERT_ID()) AS Result;
-    ELSE
-        SELECT CONCAT('Passenger ', p_firstName, ' ', p_lastName, ' already exists with ID: ', existingId) AS Result;
+    SET existingId = getPassengerId(p_First_Name, p_Last_Name);
+    IF existingId = -1 THEN
+        INSERT INTO passengers (First_Name, Last_Name, Street, City, State, ZIP, phone)
+        VALUES (p_First_Name, p_Last_Name, p_Street, p_City, p_State, p_ZIP, p_phone);
     END IF;
-END//
+END $$
 DELIMITER ;
 
--- Call the procedure to add a new passenger
-CALL addPassenger('David', 'Williams', '999 Cedar Ln', 'Springfield', 'MA', '78901', '413-555-9999', 0);
+CALL addPassenger('Vegeta', 'Breifs', 'WST', 'Capsule Corp', 'West City', '3338926', '451-312-5524');  
 
--- Create addVessel procedure
-DELIMITER //
+-- Create a procedure called "addVessel" that adds a new Vessel to the Vessel table. It should handle the case when a Vessel with the same name already exists. It should handle the case where a match isn't found for a vessel.
+DELIMITER $$
 CREATE PROCEDURE addVessel(
-    IN v_vesselName VARCHAR(50),
-    IN v_costPerHour DECIMAL(6,2)
+    IN v_Vessel VARCHAR(50),
+    IN v_Cost_Per_Hour DECIMAL(6,2)
 )
 BEGIN
     DECLARE existingId INT;
-    
-    -- Check if vessel already exists
-    SELECT ID INTO existingId
-    FROM vessels
-    WHERE Vessel = v_vesselName
-    LIMIT 1;
-    
-    -- If vessel doesn't exist, add it
-    IF existingId IS NULL THEN
+    SET existingId = getVesselId(v_Vessel);
+    IF existingId = -1 THEN
         INSERT INTO vessels (Vessel, Cost_Per_Hour)
-        VALUES (v_vesselName, v_costPerHour);
-        SELECT CONCAT('Vessel ', v_vesselName, ' added successfully with ID: ', LAST_INSERT_ID()) AS Result;
-    ELSE
-        SELECT CONCAT('Vessel ', v_vesselName, ' already exists with ID: ', existingId) AS Result;
+        VALUES (v_Vessel, v_Cost_Per_Hour);
     END IF;
-END//
+END $$
 DELIMITER ;
 
--- Call the procedure to add a new vessel
-CALL addVessel('Storm Chaser', 175.00);
+-- Add a new vessel using this procedure.
+CALL addVessel('A Saiyans Pride', 9000.00);  
 
--- Create addTrip procedure
-DELIMITER //
+-- Create a procedure called "addTrip" that adds a new trip to the table using vessel and passenger names. Needs to use getPassengerId" and "getVesselId" functions 
+DELIMITER $$
 CREATE PROCEDURE addTrip(
-    IN t_vesselName VARCHAR(50),
-    IN t_firstName VARCHAR(50),
-    IN t_lastName VARCHAR(50),
-    IN t_date DATE,
-    IN t_departureTime TIME,
-    IN t_lengthInHours DECIMAL(5,2),
-    IN t_totalPassengers INT
+    IN t_Vessel_Name VARCHAR(50),
+    IN t_Passenger_First_Name VARCHAR(50),
+    IN t_Passenger_Last_Name VARCHAR(50),
+    IN t_Date DATE,
+    IN t_Departure_Time TIME,
+    IN t_Length_in_Hours DECIMAL(5,2),
+    IN t_Total_Passengers INT
 )
+
 BEGIN
-    DECLARE v_vesselId INT;
-    DECLARE v_passengerId INT;
+    DECLARE v_Vessel_ID INT;
+    DECLARE v_Passenger_ID INT;
     
-    -- Get vessel ID using the getVesselId function
-    SET v_vesselId = getVesselId(t_vesselName);
+    SET v_Vessel_ID = getVesselId(t_Vessel_Name);
+    SET v_Passenger_ID = getPassengerId(t_Passenger_First_Name, t_Passenger_Last_Name);
     
-    -- Get passenger ID using the getPassengerId function
-    SET v_passengerId = getPassengerId(t_firstName, t_lastName);
-    
-    -- Check if both vessel and passenger were found
-    IF v_vesselId = -1 THEN
-        SELECT CONCAT('Error: Vessel "', t_vesselName, '" not found in the database.') AS Result;
-    ELSEIF v_passengerId = -1 THEN
-        SELECT CONCAT('Error: Passenger "', t_firstName, ' ', t_lastName, '" not found in the database.') AS Result;
+    IF v_Vessel_ID = -1 THEN
+        SELECT CONCAT('The Vessel "', t_Vessel_Name, '" is not available.') AS Result;
+    ELSEIF v_Passenger_ID = -1 THEN
+        SELECT CONCAT('The Passenger "', t_Passenger_First_Name, ' ', t_Passenger_Last_Name, '" is not on the list.') AS Result;
     ELSE
-        -- Both found, insert the trip
         INSERT INTO trips (Vessel_ID, Passenger_ID, Date, Departure_Time, Length_in_Hours, Total_Passengers)
-        VALUES (v_vesselId, v_passengerId, t_date, t_departureTime, t_lengthInHours, t_totalPassengers);
-        SELECT CONCAT('Trip added successfully for ', t_firstName, ' ', t_lastName, ' on ', t_vesselName, ' at ', t_date, ' ', t_departureTime) AS Result;
+        VALUES (v_Vessel_ID, v_Passenger_ID, t_Date, t_Departure_Time, t_Length_in_Hours, t_Total_Passengers);
     END IF;
-END//
+END $$
 DELIMITER ;
 
--- Call the procedure to add a new trip using the new passenger and vessel
-CALL addTrip('Storm Chaser', 'David', 'Williams', '2025-03-20', '10:00:00', 2.5, 4);
+-- Add at least one new trip using the new passenger and vessel added in steps 7 and 8 above.
+CALL addTrip('A Saiyans Pride', 'Vegeta', 'Breifs', '2026-03-22', '10:00:00', 5.00, 4);
+CALL addTrip('The Legendary One', 'Broly', 'Tara', '2026-04-22', '5:00:00', 2.5, 4);
 
--- Call the views again to show new data loaded successfully
+-- Call the "All Trips" and "Total Revenue by Vessel" views again to show your new data loaded successfully
 SELECT * FROM `All Trips`;
-
 SELECT * FROM `Total Revenue by Vessel`;
-
