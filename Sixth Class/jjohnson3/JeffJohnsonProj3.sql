@@ -80,7 +80,7 @@ INSERT INTO `trips` VALUES
 /* Add your code below here */
 
 -- Create AND call a view called "All Trips" that displays one row per voyage and has the following column headers: Date and Time, Vessel Name, Passenger Name, Passenger Address, Passenger Phone, Voyage Length, and Amount Paid.
-
+DROP VIEW IF EXISTS `All Trips`;
 CREATE VIEW `All Trips` AS
 SELECT 
     CONCAT(t.Date, ' ', t.Departure_Time) AS `Date and Time`,
@@ -136,9 +136,7 @@ RETURNS INT
 DETERMINISTIC
 BEGIN
     DECLARE passengerId INT;
-    
     SELECT ID INTO passengerId FROM passengers WHERE First_Name = firstName AND Last_Name = lastName;
-    
     IF passengerId IS NULL THEN
         RETURN -1;
     ELSE
