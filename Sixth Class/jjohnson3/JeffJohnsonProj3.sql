@@ -83,7 +83,7 @@ INSERT INTO `trips` VALUES
 DROP VIEW IF EXISTS `All Trips`;
 CREATE VIEW `All Trips` AS
 SELECT 
-    CONCAT(t.Date, ' ', t.Departure_Time) AS `Date and Time`,
+    CONCAT(DATE_FORMAT(t.Date, '%M %d, %Y'), ' at ', TIME_FORMAT(t.Departure_Time, '%h:%i %p')) AS `Date and Time`,
     v.Vessel AS `Vessel Name`,
     CONCAT(p.First_Name, ' ', p.Last_Name) AS `Passenger Name`,
     CONCAT(p.Street, ', ', p.City, ', ', p.State, ' ', p.ZIP) AS `Passenger Address`,
