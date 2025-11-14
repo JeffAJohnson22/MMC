@@ -222,6 +222,7 @@ DELIMITER ;
 -- Add at least one new trip using the new passenger and vessel added in steps 7 and 8 above.
 CALL addTrip('A Saiyans Pride', 'Vegeta', 'Breifs', '2026-03-22', '10:00:00', 5.00, 4);
 CALL addVessel('The Legendary One', 500.00);
+CALL addPassenger('Broly', 'Tara', '789 Saiyan Rd', 'Planet Vegeta', 'PV', '44456', '555-123-4567');
 CALL addTrip('The Legendary One', 'Broly', 'Tara', '2026-04-22', '5:00:00', 2.5, 4);
 
 -- Call the "All Trips" and "Total Revenue by Vessel" views again to show your new data loaded successfully
