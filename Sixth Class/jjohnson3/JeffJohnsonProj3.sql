@@ -101,17 +101,20 @@ SELECT * FROM `All Trips`;
 
 -- Create AND call a view called "Total Revenue by Vessel" that uses the above view as a datasource, sorted highest to lowest revenue.
 -- It should have column headers named Vessel Name and Revenue. The Revenue column should sum the revenue for each vessel.
+DROP VIEW IF EXISTS `Total Revenue by Vessel`;
 CREATE VIEW `Total Revenue by Vessel` AS
 SELECT 
-    v.Vessel AS `Vessel Name`,
-    CONCAT('$', FORMAT(SUM(t.Length_in_Hours * v.Cost_Per_Hour), 2)) AS `Revenue`
-FROM trips t
-JOIN vessels v ON t.Vessel_ID = v.ID
-GROUP BY v.Vessel
-ORDER BY SUM(t.Length_in_Hours * v.Cost_Per_Hour) DESC;
+    `Vessel Name`,
+    CONCAT('$', FORMAT(SUM(CAST(REPLACE(REPLACE(`Amount Paid`, '$', ''), ',', '') AS DECIMAL(10,2))), 2)) AS `Revenue`
+FROM `All Trips`
+GROUP BY `Vessel Name`
+ORDER BY SUM(CAST(REPLACE(REPLACE(`Amount Paid`, '$', ''), ',', '') AS DECIMAL(10,2))) DESC;
+
+-- Call the view to display total revenue by vessel
 SELECT * FROM `Total Revenue by Vessel`;
 
--- Create a function called "getVesselId" that gets the Vessel id number based on its name. It should return -1 if not found. 
+-- Create a function called "getVesselId" that gets the Vessel id number based on its name. It should return -1 if not found.
+DROP FUNCTION IF EXISTS getVesselId;
 DELIMITER $$
 CREATE FUNCTION getVesselId(vesselName VARCHAR(50))
 RETURNS INT
@@ -129,7 +132,8 @@ BEGIN
 END $$
 DELIMITER ;
 
--- Create a function called "getPassengerId" the Passenger id number based on their name. It should return -1 if not found. 
+-- Create a function called "getPassengerId" the Passenger id number based on their name. It should return -1 if not found.
+DROP FUNCTION IF EXISTS getPassengerId;
 DELIMITER $$
 CREATE FUNCTION getPassengerId(firstName VARCHAR(50), lastName VARCHAR(50))
 RETURNS INT
@@ -145,7 +149,8 @@ BEGIN
 END $$
 DELIMITER ;
 
--- Create a procedure called "addPassenger" that adds a new Passenger to the Passenger table. It should handle the case when a Passenger with the same name already exists.  It should handle the case where a match isn't found for a passenger.
+-- Create a procedure called "addPassenger" that adds a new Passenger to the Passenger table. It should handle the case when a Passenger with the same name already exists.
+DROP PROCEDURE IF EXISTS addPassenger;
 DELIMITER $$
 CREATE PROCEDURE addPassenger(
     IN p_First_Name VARCHAR(50),
@@ -168,7 +173,8 @@ DELIMITER ;
 
 CALL addPassenger('Vegeta', 'Breifs', '123 Capsule St', 'Capsule Corp', 'WC', '33389', '451-312-5524');  
 
--- Create a procedure called "addVessel" that adds a new Vessel to the Vessel table. It should handle the case when a Vessel with the same name already exists. It should handle the case where a match isn't found for a vessel.
+-- Create a procedure called "addVessel" that adds a new Vessel to the Vessel table. It should handle the case when a Vessel with the same name already exists.
+DROP PROCEDURE IF EXISTS addVessel;
 DELIMITER $$
 CREATE PROCEDURE addVessel(
     IN v_Vessel VARCHAR(50),
@@ -187,7 +193,8 @@ DELIMITER ;
 -- Add a new vessel using this procedure.
 CALL addVessel('A Saiyans Pride', 9000.00);  
 
--- Create a procedure called "addTrip" that adds a new trip to the table using vessel and passenger names. Needs to use getPassengerId" and "getVesselId" functions 
+-- Create a procedure called "addTrip" that adds a new trip to the table using vessel and passenger names. It should use the getPassengerId and getVesselId functions.
+DROP PROCEDURE IF EXISTS addTrip;
 DELIMITER $$
 CREATE PROCEDURE addTrip(
     IN t_Vessel_Name VARCHAR(50),
