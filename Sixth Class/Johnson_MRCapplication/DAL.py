@@ -140,3 +140,10 @@ class Trip:
         # Fetch results from the stored procedure
         for result in cursor.stored_results():
             return result.fetchall()
+    
+    def get_revenue_by_vessel(self):
+        """Get total revenue by vessel from the view"""
+        cursor = self.db.get_cursor()
+        query = "SELECT * FROM `total revenue by vessel`"
+        cursor.execute(query)
+        return cursor.fetchall()

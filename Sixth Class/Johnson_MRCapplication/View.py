@@ -89,5 +89,13 @@ if __name__ == "__main__":
     print(f"Passengers: {len(passenger_bll.get_all_passengers() or [])}")
     print(f"Trips: {len(trip_bll.get_all_trips() or [])}")
     
+    # ==================== REVENUE REPORT ====================
+    print_section("TOTAL REVENUE BY VESSEL")
+    
+    revenue_data = trip_bll.get_revenue_by_vessel()
+    if revenue_data:
+        for row in revenue_data:
+            print(f"\n{row['Vessel Name']}: {row['Revenue']}")
+    
     db.close()
     print("\n✅ Demo complete!")

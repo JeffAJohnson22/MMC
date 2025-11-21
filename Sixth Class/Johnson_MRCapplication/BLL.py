@@ -123,6 +123,10 @@ class TripBLL:
     def get_all_trips(self):
         """Get all trips"""
         return self.trip_dal.get_trips()
+    
+    def get_revenue_by_vessel(self):
+        """Get total revenue by vessel"""
+        return self.trip_dal.get_revenue_by_vessel()
 
 
 # Example usage (for testing)
