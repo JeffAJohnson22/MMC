@@ -117,8 +117,8 @@ if __name__ == "__main__":
     # ==================== ADD NEW TRIP WITH NEW VESSEL AND PASSENGER ====================
     print_section("ADDING COMPLETE NEW TRIP")
     
-    print("\nStep 1: Adding new vessel 'A Saiyans Pride' ($225/hr)")
-    vessel_result = vessel_bll.add_vessel("A Saiyans Pride", 225.00)
+    print("\nStep 1: Adding new vessel 'A Saiyans Pride")
+    vessel_result = vessel_bll.add_vessel("A Saiyans Pride", 300.00)
     if vessel_result and 'VesselID' in vessel_result:
         print(f" Vessel added with ID: {vessel_result['VesselID']}")
     else:
