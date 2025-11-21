@@ -117,22 +117,22 @@ if __name__ == "__main__":
     # ==================== ADD NEW TRIP WITH NEW VESSEL AND PASSENGER ====================
     print_section("ADDING COMPLETE NEW TRIP")
     
-    print("\nStep 1: Adding new vessel 'Sunset Cruise' ($225/hr)")
-    vessel_result = vessel_bll.add_vessel("Sunset Cruise", 225.00)
+    print("\nStep 1: Adding new vessel 'A Saiyans Pride' ($225/hr)")
+    vessel_result = vessel_bll.add_vessel("A Saiyans Pride", 225.00)
     if vessel_result and 'VesselID' in vessel_result:
         print(f" Vessel added with ID: {vessel_result['VesselID']}")
     else:
         print(" Vessel already exists")
     
-    print("\nStep 2: Adding new passenger 'Bob Williams' (413-555-7777)")
-    passenger_result = passenger_bll.add_passenger("Bob", "Williams", "413-555-7777")
+    print("\nStep 2: Adding new passenger 'Goku Son' (413-555-7777)")
+    passenger_result = passenger_bll.add_passenger("Goku", "Son", "413-555-7777")
     if passenger_result and 'PassengerID' in passenger_result:
         print(f" Passenger added with ID: {passenger_result['PassengerID']}")
     else:
         print(" Passenger already exists")
     
     print("\nStep 3: Adding trip with new vessel and passenger on 2025-12-20 at 16:00")
-    trip_result = trip_bll.add_trip("Sunset Cruise", "Bob", "Williams", "2025-12-20", "16:00:00", 4.0, 6)
+    trip_result = trip_bll.add_trip("A Saiyans Pride", "Goku", "Son", "2025-12-20", "16:00:00", 4.0, 6)
     if trip_result and 'error' in trip_result:
         print(f" Error: {trip_result['error']}")
     elif trip_result and 'DuplicateTrip' in trip_result:
