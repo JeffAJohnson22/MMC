@@ -44,31 +44,7 @@ class DatabaseConnection:
         """Close the database connection."""
         if self.connection and self.connection.is_connected():
             self.connection.close()
-            self.connection = None
-
-
-
-db = DatabaseConnection(config['host'], config['username'], config['password'], config['database'])
-if db.connect():  
-    print("Connected to mrc database!")
-    cursor = db.get_cursor()
-
-    # switch case to demonstrate commit and close
-    choice = input("Enter 'commit' to commit changes or 'close' to close the connection: ").strip().lower()
-    if choice == 'commit':
-        db.commit()
-        print("Changes committed to the database.")
-    elif choice == 'close':
-        db.close()
-        print("Database connection closed.")
-    else:
-        print("Invalid choice. No action taken.")
-else:
-    print("Connection failed!")
-
-
-# A class for each of the three tables. Add at two methods to your classes. One to read data and another to add data. 
-# You should use the functions and procedures in the starter sql file to access the database. Make sure all your parameters are included. Your BLL should call the DAL and pass down data to your DAL. 
+            self.connection = None 
 
 class Vessel:
     def __init__(self, db):
