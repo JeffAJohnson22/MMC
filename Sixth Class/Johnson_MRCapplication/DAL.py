@@ -1,7 +1,6 @@
 # A way to connect to the database, establish and manage a cursor, and if needed, commit data and/or close the connection. Many people use a custom connection class, but this is not strictly necessary.
 import mysql.connector
 from mysql.connector import Error
-from config import config
 
 class DatabaseConnection:
     def __init__(self, host, user, password, database):
