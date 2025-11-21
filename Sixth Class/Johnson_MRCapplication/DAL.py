@@ -52,14 +52,14 @@ db = DatabaseConnection(config['host'], config['username'], config['password'], 
 if db.connect():  
     print("✅ Connected to mrc database!")
     cursor = db.get_cursor()
-    
-    # Test: Get all vessels
-    cursor.callproc('getVesselList')
-    for result in cursor.stored_results():
-        vessels = result.fetchall()
-        for vessel in vessels:
-            print(f"  {vessel['Vessel']} - ${vessel['Cost_Per_Hour']}/hr")
-    
-    db.close()
+
+    # switch case to demonstrate commit and close
+    choice = input("Enter 'commit' to commit changes or 'close' to close the connection: ").strip().lower()
+    if choice == 'commit':
+        db.commit()
+    elif choice == 'close':
+        db.close()
+    else:
+        print("Invalid choice. No action taken.")
 else:
     print("❌ Connection failed!")
