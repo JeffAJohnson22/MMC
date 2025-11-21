@@ -16,7 +16,7 @@ def setup_database():
     sql_file = 'Starter_Code_Week_4+5.sql'
     
     if not os.path.exists(sql_file):
-        print(f"❌ Error: {sql_file} not found in current directory")
+        print(f"  Error: {sql_file} not found in current directory")
         return False
     
     print("Setting up MRC database...")
@@ -42,7 +42,7 @@ def setup_database():
             break
     
     if not mysql_exe:
-        print("❌ MySQL executable not found!")
+        print("  MySQL executable not found!")
         print("\nPlease use MySQL Workbench instead:")
         print("  1. Open MySQL Workbench")
         print("  2. File → Open SQL Script")
@@ -72,22 +72,22 @@ def setup_database():
         )
         
         if result.returncode == 0:
-            print("\n✅ Database 'mrc' created successfully!")
-            print("✅ Tables created: vessels, passengers, trips")
-            print("✅ Views created: 'all trips', 'total revenue by vessel'")
-            print("✅ Functions created: getVesselID(), getPassengerID()")
-            print("✅ Procedures created: getPassengerList, getVesselList, getTripList,")
+            print("\n Database 'mrc' created successfully!")
+            print(" Tables created: vessels, passengers, trips")
+            print(" Views created: 'all trips', 'total revenue by vessel'")
+            print(" Functions created: getVesselID(), getPassengerID()")
+            print(" Procedures created: getPassengerList, getVesselList, getTripList,")
             print("   addPassenger, addVessel, addTrip, deletePassenger, deleteVessel")
             print("\nYou can now run your application!")
             return True
         else:
-            print(f"\n❌ Error executing SQL file:")
+            print(f"\n Error executing SQL file:")
             print(result.stderr)
             print("\nPlease use MySQL Workbench instead (see above for instructions)")
             return False
             
     except FileNotFoundError:
-        print("❌ MySQL command line tool not found!")
+        print(" MySQL command line tool not found!")
         print("\nPlease use MySQL Workbench instead:")
         print("  1. Open MySQL Workbench")
         print("  2. File → Open SQL Script")
@@ -95,7 +95,7 @@ def setup_database():
         print("  4. Click Execute (⚡) button")
         return False
     except Exception as e:
-        print(f"\n❌ Error: {e}")
+        print(f"\n Error: {e}")
         return False
 
 if __name__ == "__main__":

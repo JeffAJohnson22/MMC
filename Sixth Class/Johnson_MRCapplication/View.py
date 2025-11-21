@@ -25,10 +25,10 @@ if __name__ == "__main__":
     db = DatabaseConnection(host, username, password, database)
     
     if not db.connect():
-        print("❌ Connection failed!")
+        print(" Connection failed!")
         exit(1)
     
-    print("✅ Connected successfully!")
+    print(" Connected successfully!")
     
     # Create BLL instances
     vessel_bll = VesselBLL(db)
@@ -61,26 +61,26 @@ if __name__ == "__main__":
     
     print("\nAdding vessel: Harbor Queen ($175/hr)")
     result = vessel_bll.add_vessel("Harbor Queen", 175.00)
-    print(f"✅ Added with ID: {result.get('VesselID')}" if result and 'VesselID' in result else "⚠️ Already exists")
+    print(f" Added with ID: {result.get('VesselID')}" if result and 'VesselID' in result else "  Already exists")
     
     print("\nAdding passenger: Alice Johnson")
     result = passenger_bll.add_passenger("Alice", "Johnson", "978-555-9999")
-    print(f"✅ Added with ID: {result.get('PassengerID')}" if result and 'PassengerID' in result else "⚠️ Already exists")
+    print(f" Added with ID: {result.get('PassengerID')}" if result and 'PassengerID' in result else "  Already exists")
     
     print("\nLooking up 'Sea Breeze'...")
     result = vessel_bll.get_vessel_id_by_name("Sea Breeze")
-    print(f"✅ Vessel ID: {result['VesselID']}" if result and result.get('VesselID', -1) != -1 else "❌ Not found")
+    print(f" Vessel ID: {result['VesselID']}" if result and result.get('VesselID', -1) != -1 else "  Not found")
     
     print("\nAdding trip: Sea Breeze with Alice Johnson on 2025-12-15...")
     result = trip_bll.add_trip("Sea Breeze", "Alice", "Johnson", "2025-12-15", "14:00:00", 3.5, 4)
     if result and 'error' in result:
-        print(f"⚠️ {result['error']}")
+        print(f" {result['error']}")
     elif result and 'DuplicateTrip' in result:
-        print("⚠️ Duplicate trip")
+        print(" Duplicate trip")
     elif result and 'NotFound' in result:
-        print("❌ Vessel or passenger not found")
+        print(" Vessel or passenger not found")
     else:
-        print("✅ Trip added")
+        print(" Trip added")
     
     # ==================== FINAL STATE ====================
     print_section("FINAL DATA")
@@ -97,5 +97,22 @@ if __name__ == "__main__":
         for row in revenue_data:
             print(f"\n{row['Vessel Name']}: {row['Revenue']}")
     
+    # ==================== VESSEL LOOKUP TEST ====================
+    print_section("VESSEL ID LOOKUP TEST")
+    
+    print("\nLooking up vessel: 'Ocean Voyager'")
+    result = vessel_bll.get_vessel_id_by_name("Ocean Voyager")
+    if result and result.get('VesselID', -1) != -1:
+        print(f"Found - Vessel ID: {result['VesselID']}")
+    else:
+        print("Not found")
+    
+    print("\nLooking up vessel: 'Titanic'")
+    result = vessel_bll.get_vessel_id_by_name("Titanic")
+    if result and result.get('VesselID', -1) != -1:
+        print(f"Found - Vessel ID: {result['VesselID']}")
+    else:
+        print("Not found - This vessel does not exist in the database")
+    
     db.close()
-    print("\n✅ Demo complete!")
+    print("\n Demo complete!")
