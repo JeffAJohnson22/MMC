@@ -1,6 +1,4 @@
-# Business Logic Layer - Handles business logic and calls DAL methods
-from DAL import DatabaseConnection, Vessel, Passenger, Trip
-from config import config
+from DAL import Vessel, Passenger, Trip
 
 class VesselBLL:
     """Business Logic Layer for Vessel operations"""
@@ -127,50 +125,3 @@ class TripBLL:
     def get_revenue_by_vessel(self):
         """Get total revenue by vessel"""
         return self.trip_dal.get_revenue_by_vessel()
-
-
-# Example usage (for testing)
-if __name__ == "__main__":
-    # Connect to database
-    db = DatabaseConnection(config['host'], config['username'], config['password'], config['database'])
-    
-    if db.connect():
-        print("Connected to mrc database!")
-        
-        # Create BLL instances
-        vessel_bll = VesselBLL(db)
-        passenger_bll = PassengerBLL(db)
-        trip_bll = TripBLL(db)
-        
-        # Main loop
-        while True:
-            choice = input("\nEnter 'vessels' to get all vessels, 'passengers' to get all passengers, 'trips' to get all trips, or 'exit' to quit: ").strip().lower()
-            
-            if choice == 'vessels':
-                print("\n--- All Vessels ---")
-                vessels = vessel_bll.get_all_vessels()
-                if vessels:
-                    for vessel in vessels:
-                        print(vessel)
-            elif choice == 'passengers':
-                print("\n--- All Passengers ---")
-                passengers = passenger_bll.get_all_passengers()
-                if passengers:
-                    for passenger in passengers:
-                        print(passenger)
-            elif choice == 'trips':
-                print("\n--- All Trips ---")
-                trips = trip_bll.get_all_trips()
-                if trips:
-                    for trip in trips:
-                        print(trip)
-            elif choice == 'exit':
-                break
-            else:
-                print("Invalid choice. Please try again.")
-        
-        # Close connection
-        db.close()
-        print("Database connection closed!")
-    else:
-        print("Connection failed!")

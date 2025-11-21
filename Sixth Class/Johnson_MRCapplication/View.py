@@ -3,6 +3,7 @@
 from config import config
 from DAL import DatabaseConnection
 from BLL import VesselBLL, PassengerBLL, TripBLL
+import time
 
 def print_section(title):
     """Helper function to print section headers"""
@@ -55,7 +56,7 @@ if __name__ == "__main__":
     if trips:
         for t in trips:
             print(f"  {t['Date and Time']} - {t['Vessel Name']} - {t['Passenger Name']}")
-    
+    time.sleep(1)
     # ==================== DEMO OPERATIONS ====================
     print_section("DEMO OPERATIONS")
     
@@ -81,14 +82,14 @@ if __name__ == "__main__":
         print(" Vessel or passenger not found")
     else:
         print(" Trip added")
-    
+    time.sleep(1)
     # ==================== FINAL STATE ====================
     print_section("FINAL DATA")
     
     print(f"\nVessels: {len(vessel_bll.get_all_vessels() or [])}")
     print(f"Passengers: {len(passenger_bll.get_all_passengers() or [])}")
     print(f"Trips: {len(trip_bll.get_all_trips() or [])}")
-    
+    time.sleep(1)
     # ==================== REVENUE REPORT ====================
     print_section("TOTAL REVENUE BY VESSEL")
     
@@ -96,7 +97,7 @@ if __name__ == "__main__":
     if revenue_data:
         for row in revenue_data:
             print(f"\n{row['Vessel Name']}: {row['Revenue']}")
-    
+    time.sleep(1)
     # ==================== VESSEL LOOKUP TEST ====================
     print_section("VESSEL ID LOOKUP TEST")
     
@@ -113,7 +114,7 @@ if __name__ == "__main__":
         print(f"Found - Vessel ID: {result['VesselID']}")
     else:
         print("Not found - This vessel does not exist in the database")
-    
+    time.sleep(1)
     # ==================== ADD NEW TRIP WITH NEW VESSEL AND PASSENGER ====================
     print_section("ADDING COMPLETE NEW TRIP")
     
@@ -141,9 +142,24 @@ if __name__ == "__main__":
         print(" Error: Vessel or passenger not found")
     else:
         print(" Trip successfully added and committed to database!")
+    time.sleep(1)
+    # ==================== ALL TRIPS VIEW ====================
+    print_section("ALL TRIPS (Including New Trip)")
     
-    print("\nVerifying new trip was added:")
-    print(f"Total trips now: {len(trip_bll.get_all_trips() or [])}")
-    
+    all_trips = trip_bll.get_all_trips()
+    if all_trips:
+        print(f"\nTotal trips in database: {len(all_trips)}\n")
+        for trip in all_trips:
+            print(f"Date/Time: {trip['Date and Time']}")
+            print(f"  Vessel: {trip['Vessel Name']}")
+            print(f"  Passenger: {trip['Passenger Name']}")
+            print(f"  Address: {trip['Passenger Address']}")
+            print(f"  Phone: {trip['Passenger Phone']}")
+            print(f"  Duration: {trip['Trip Duration']} hours")
+            print(f"  Cost: {trip['Total Cost']}")
+            print()
+    else:
+        print("\nNo trips found.")
+    time.sleep(1)
     db.close()
     print("\n Demo complete!")

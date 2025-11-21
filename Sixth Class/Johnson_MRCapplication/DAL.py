@@ -1,4 +1,3 @@
-# A way to connect to the database, establish and manage a cursor, and if needed, commit data and/or close the connection. Many people use a custom connection class, but this is not strictly necessary.
 import mysql.connector
 from mysql.connector import Error
 
@@ -91,7 +90,6 @@ class Passenger:
         cursor = self.db.get_cursor()
         cursor.callproc('addPassenger', (first_name, last_name, phone))
         self.db.commit()
-        # Fetch the result to get the PassengerID
         for result in cursor.stored_results():
             return result.fetchone()
 
@@ -99,7 +97,6 @@ class Passenger:
         """Get all passengers using the getPassengerList stored procedure"""
         cursor = self.db.get_cursor()
         cursor.callproc('getPassengerList')
-        # Fetch results from the stored procedure
         for result in cursor.stored_results():
             return result.fetchall()
     
@@ -108,7 +105,6 @@ class Passenger:
         cursor = self.db.get_cursor()
         cursor.callproc('deletePassenger', (passenger_id,))
         self.db.commit()
-        # Fetch the result to check if passenger was found
         for result in cursor.stored_results():
             return result.fetchone()
     
@@ -129,7 +125,6 @@ class Trip:
         cursor.callproc('addTrip', (vessel_name, passenger_first_name, passenger_last_name, 
                                     date, departure_time, length_in_hours, total_passengers))
         self.db.commit()
-        # Fetch the result to check for errors (returns -1, -2, -3 for not found, 0 for duplicate)
         for result in cursor.stored_results():
             return result.fetchone()
 
