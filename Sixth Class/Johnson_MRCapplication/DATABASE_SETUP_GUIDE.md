@@ -85,7 +85,7 @@ db = DatabaseConnection(
 )
 
 if db.connect():  
-    print("✅ Connected to mrc database!")
+    print("  Connected to mrc database!")
     cursor = db.get_cursor()
     
     # Test: Get all vessels
@@ -97,7 +97,7 @@ if db.connect():
     
     db.close()
 else:
-    print("❌ Connection failed!")
+    print("  Connection failed!")
 ```
 
 ---
@@ -107,7 +107,7 @@ else:
 - [ ] MySQL is running
 - [ ] Run `Starter_Code_Week_4+5.sql` in MySQL Workbench (do this ONCE)
 - [ ] Update `config.py` with your MySQL password
-- [ ] Database name is set to `'mrc'` in config.py ✅ (already done)
+- [ ] Database name is set to `'mrc'` in config.py   (already done)
 - [ ] Run your Python application
 
 ---
