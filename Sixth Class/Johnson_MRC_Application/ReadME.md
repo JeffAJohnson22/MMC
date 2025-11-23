@@ -4,7 +4,7 @@
 - MySQL Server
 - mysql-connector-python package
 
-## How to start
+## One time setup
 
 The `Starter_Code_Week_4+5.sql` file is not a database you connect to, it's a script that builds one.
 
