@@ -18,14 +18,6 @@ class VesselBLL:
         """Get all vessels"""
         return self.vessel_dal.get_vessels()
     
-    def delete_vessel(self, vessel_id):
-        """Delete vessel by ID"""
-        if not isinstance(vessel_id, int) or vessel_id <= 0:
-            return {"error": "Invalid vessel ID"}
-        
-        result = self.vessel_dal.delete_vessel(vessel_id)
-        return result
-    
     def get_vessel_id_by_name(self, vessel_name):
         """Get vessel ID by name"""
         if not vessel_name:
@@ -54,14 +46,6 @@ class PassengerBLL:
     def get_all_passengers(self):
         """Get all passengers"""
         return self.passenger_dal.get_passengers()
-    
-    def delete_passenger(self, passenger_id):
-        """Delete passenger by ID"""
-        if not isinstance(passenger_id, int) or passenger_id <= 0:
-            return {"error": "Invalid passenger ID"}
-        
-        result = self.passenger_dal.delete_passenger(passenger_id)
-        return result
     
     def get_passenger_id_by_name(self, first_name, last_name):
         """Get passenger ID by name"""

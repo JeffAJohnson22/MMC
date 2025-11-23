@@ -57,13 +57,6 @@ class Vessel:
         for result in cursor.stored_results():
             return result.fetchall()
     
-    def delete_vessel(self, vessel_id):
-        cursor = self.db.get_cursor()
-        cursor.callproc('deleteVessel', (vessel_id,))
-        self.db.commit()
-        for result in cursor.stored_results():
-            return result.fetchone()
-    
     def get_vessel_id(self, vessel_name):
         cursor = self.db.get_cursor()
         query = "SELECT getVesselID(%s) as VesselID"
@@ -86,13 +79,6 @@ class Passenger:
         cursor.callproc('getPassengerList')
         for result in cursor.stored_results():
             return result.fetchall()
-    
-    def delete_passenger(self, passenger_id):
-        cursor = self.db.get_cursor()
-        cursor.callproc('deletePassenger', (passenger_id,))
-        self.db.commit()
-        for result in cursor.stored_results():
-            return result.fetchone()
     
     def get_passenger_id(self, first_name, last_name):
         cursor = self.db.get_cursor()
