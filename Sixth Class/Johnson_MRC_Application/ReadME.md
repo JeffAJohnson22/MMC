@@ -1,6 +1,6 @@
 # Prerequisites
 
-- Python (3.x)
+- At least Python version 3.xx
 - MySQL Server
 - mysql-connector-python package
 
