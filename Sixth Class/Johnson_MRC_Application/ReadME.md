@@ -19,7 +19,8 @@ The `Starter_Code_Week_4+5.sql` file is not a database you connect to, it's a sc
 
 ## Connect to Workbench From Python
 
-Create a `config.py`in the root and replace them with yours e.g. below:
+> [!IMPORTANT]
+> Create a `config.py`in the root and replace them with yours e.g. below:
 
 ```python
 config = {
