@@ -89,13 +89,13 @@ if __name__ == "__main__":
     time.sleep(1)
     
     # -------------------------- ALL TRIPS VIEW --------------------------
-    print_section("ALL TRIPS (Including New Trip)")
+    print_section("ALL TRIPS (Including the New Trip)")
     
     all_trips = trip_bll.get_all_trips()
     if all_trips:
         print(f"\nTotal trips in database: {len(all_trips)}\n")
         for trip in all_trips:
-            print(f"Date/Time: {trip['Date and Time']}")
+            print(f"Date and Time: {trip['Date and Time']}")
             print(f"  Vessel: {trip['Vessel Name']}")
             print(f"  Passenger: {trip['Passenger Name']}")
             print(f"  Address: {trip['Passenger Address']}")

@@ -7,6 +7,7 @@
 ## One time setup
 
 The `Starter_Code_Week_4+5.sql` file is not a database you connect to, it's a script that builds one.
+That this one works you can swap out the above sql file for your own but still follow the step below.
 
 ## MySQL Workbench
 
