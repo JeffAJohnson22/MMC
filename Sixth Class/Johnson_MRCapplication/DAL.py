@@ -53,7 +53,6 @@ class Vessel:
         cursor = self.db.get_cursor()
         cursor.callproc('addVessel', (vessel_name, cost_per_hour))
         self.db.commit()
-        # Fetch the result to get the VesselID
         for result in cursor.stored_results():
             return result.fetchone()
 
@@ -61,7 +60,6 @@ class Vessel:
         """Get all vessels using the getVesselList stored procedure"""
         cursor = self.db.get_cursor()
         cursor.callproc('getVesselList')
-        # Fetch results from the stored procedure
         for result in cursor.stored_results():
             return result.fetchall()
     
@@ -70,7 +68,6 @@ class Vessel:
         cursor = self.db.get_cursor()
         cursor.callproc('deleteVessel', (vessel_id,))
         self.db.commit()
-        # Fetch the result to check if vessel was found
         for result in cursor.stored_results():
             return result.fetchone()
     
@@ -132,7 +129,6 @@ class Trip:
         """Get all trips using the getTripList stored procedure (returns formatted view)"""
         cursor = self.db.get_cursor()
         cursor.callproc('getTripList')
-        # Fetch results from the stored procedure
         for result in cursor.stored_results():
             return result.fetchall()
     

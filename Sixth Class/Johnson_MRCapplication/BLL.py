@@ -75,7 +75,6 @@ class PassengerBLL:
         result = self.passenger_dal.get_passenger_id(first_name, last_name)
         return result
 
-
 class TripBLL:
     """Business Logic Layer for Trip operations"""
     
