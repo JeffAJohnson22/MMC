@@ -1,5 +1,3 @@
-# Update these values for your local mysql instance
-
 config = {
     'username': 'root',
     'password': 'password',

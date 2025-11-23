@@ -1,13 +1,11 @@
 from DAL import Vessel, Passenger, Trip
 
-class VesselBLL:
-    """Business Logic Layer for Vessel operations"""
-    
+class VesselBLL:    
     def __init__(self, db):
         self.vessel_dal = Vessel(db)
     
     def add_vessel(self, vessel_name, cost_per_hour):
-        """Add a new vessel with validation"""
+        """Add a vessel with validation"""
         if not vessel_name or not isinstance(vessel_name, str):
             return {"error": "Invalid vessel name"}
         if cost_per_hour is None or cost_per_hour < 0:
@@ -21,7 +19,7 @@ class VesselBLL:
         return self.vessel_dal.get_vessels()
     
     def delete_vessel(self, vessel_id):
-        """Delete a vessel by ID"""
+        """Delete vessel by ID"""
         if not isinstance(vessel_id, int) or vessel_id <= 0:
             return {"error": "Invalid vessel ID"}
         
@@ -37,14 +35,12 @@ class VesselBLL:
         return result
 
 
-class PassengerBLL:
-    """Business Logic Layer for Passenger operations"""
-    
+class PassengerBLL:    
     def __init__(self, db):
         self.passenger_dal = Passenger(db)
     
     def add_passenger(self, first_name, last_name, phone):
-        """Add a new passenger with validation"""
+        """Add a passenger with validation"""
         if not first_name or not isinstance(first_name, str):
             return {"error": "Invalid first name"}
         if not last_name or not isinstance(last_name, str):
@@ -60,7 +56,7 @@ class PassengerBLL:
         return self.passenger_dal.get_passengers()
     
     def delete_passenger(self, passenger_id):
-        """Delete a passenger by ID"""
+        """Delete passenger by ID"""
         if not isinstance(passenger_id, int) or passenger_id <= 0:
             return {"error": "Invalid passenger ID"}
         
@@ -76,14 +72,11 @@ class PassengerBLL:
         return result
 
 class TripBLL:
-    """Business Logic Layer for Trip operations"""
-    
     def __init__(self, db):
         self.trip_dal = Trip(db)
     
     def add_trip(self, vessel_name, passenger_first_name, passenger_last_name, 
                  date, departure_time, length_in_hours, total_passengers):
-        """Add a new trip with validation"""
         if not vessel_name or not isinstance(vessel_name, str):
             return {"error": "Invalid vessel name"}
         if not passenger_first_name or not isinstance(passenger_first_name, str):
@@ -102,7 +95,6 @@ class TripBLL:
         result = self.trip_dal.add_trip(vessel_name, passenger_first_name, passenger_last_name,
                                        date, departure_time, length_in_hours, total_passengers)
         
-        # Handle stored procedure return codes
         if result:
             if 'NotFound' in result:
                 error_code = result['NotFound']
@@ -122,5 +114,5 @@ class TripBLL:
         return self.trip_dal.get_trips()
     
     def get_revenue_by_vessel(self):
-        """Get total revenue by vessel"""
+        """Get revenue by vessel"""
         return self.trip_dal.get_revenue_by_vessel()
