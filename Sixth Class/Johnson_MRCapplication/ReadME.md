@@ -4,7 +4,7 @@
 - MySQL Server
 - mysql-connector-python package
 
-# How to start
+## How to start
 
 The `Starter_Code_Week_4+5.sql` file is not a database you connect to, it's a script that builds one.
 
@@ -35,4 +35,3 @@ From the View File if your Visual Code press play ▶️ button.
 It will as for the information from your config file. If you have done the connections step your defaults are valid and you can just press enter through the connection information requests.
 
 Information will display with a second delay.
-
