@@ -33,6 +33,6 @@ config = {
 ```
 
 From the View File if your Visual Code press play ▶️ button.
-It will as for the information from your config file. If you have done the connections step your defaults are valid and you can just press enter through the connection information requests.
+It will ask for the information from your config file. If you have done the connections step your defaults are valid and you can just press enter through the connection information requests.
 
-Information will display with a second delay.
+Information will display.
