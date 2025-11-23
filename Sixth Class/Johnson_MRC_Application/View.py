@@ -4,13 +4,12 @@ from BLL import VesselBLL, PassengerBLL, TripBLL
 import time
 
 def print_section(title):
-    """Helper function to print section headers"""
     print("\n" + "-"*20)
     print(f"{title}")
     print("-"*20)
 
 if __name__ == "__main__":
-    print_section("Merrimack River Cruises - Database Demo")
+    print_section("Welcome to the Program for One Piece Industries")
     
     print("\nEnter database connection information (press Enter for defaults):")
     host = input(f"Host [{config['host']}]: ").strip() or config['host']
@@ -41,6 +40,7 @@ if __name__ == "__main__":
         for row in revenue_data:
             print(f"\n{row['Vessel Name']}: {row['Revenue']}")
     time.sleep(1)
+    
     # -------------------------- VESSEL LOOKUP TEST --------------------------
     print_section("VESSEL ID LOOKUP TEST")
     
@@ -58,6 +58,7 @@ if __name__ == "__main__":
     else:
         print("Not found - This vessel does not exist in the database")
     time.sleep(1)
+    
     # -------------------------- ADD NEW TRIP WITH NEW VESSEL AND PASSENGER --------------------------
     print_section("ADDING COMPLETE NEW TRIP")
     
@@ -86,6 +87,7 @@ if __name__ == "__main__":
     else:
         print(" Trip successfully added and committed to database!")
     time.sleep(1)
+    
     # -------------------------- ALL TRIPS VIEW --------------------------
     print_section("ALL TRIPS (Including New Trip)")
     

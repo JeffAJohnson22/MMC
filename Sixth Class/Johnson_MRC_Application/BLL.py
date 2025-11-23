@@ -5,7 +5,6 @@ class VesselBLL:
         self.vessel_dal = Vessel(db)
     
     def add_vessel(self, vessel_name, cost_per_hour):
-        """Add a vessel with validation"""
         if not vessel_name or not isinstance(vessel_name, str):
             return {"error": "Invalid vessel name"}
         if cost_per_hour is None or cost_per_hour < 0:
@@ -15,11 +14,9 @@ class VesselBLL:
         return result
     
     def get_all_vessels(self):
-        """Get all vessels"""
         return self.vessel_dal.get_vessels()
     
     def get_vessel_id_by_name(self, vessel_name):
-        """Get vessel ID by name"""
         if not vessel_name:
             return {"error": "Vessel name required"}
         
@@ -32,7 +29,6 @@ class PassengerBLL:
         self.passenger_dal = Passenger(db)
     
     def add_passenger(self, first_name, last_name, phone):
-        """Add a passenger with validation"""
         if not first_name or not isinstance(first_name, str):
             return {"error": "Invalid first name"}
         if not last_name or not isinstance(last_name, str):
@@ -44,11 +40,9 @@ class PassengerBLL:
         return result
     
     def get_all_passengers(self):
-        """Get all passengers"""
         return self.passenger_dal.get_passengers()
     
     def get_passenger_id_by_name(self, first_name, last_name):
-        """Get passenger ID by name"""
         if not first_name or not last_name:
             return {"error": "First and last name required"}
         
@@ -94,9 +88,7 @@ class TripBLL:
         return result
     
     def get_all_trips(self):
-        """Get all trips"""
         return self.trip_dal.get_trips()
     
     def get_revenue_by_vessel(self):
-        """Get revenue by vessel"""
         return self.trip_dal.get_revenue_by_vessel()
