@@ -10,8 +10,8 @@ from datetime import datetime
 class MRCApplication:
     def __init__(self, root):
         self.root = root
-        self.root.title("MRC Management System")
-        self.root.geometry("700x500")
+        self.root.title("MRC Application")
+        self.root.geometry("800x800")
         self.db = None
         self.trip_bll = None
         self.vessel_bll = None
@@ -19,78 +19,64 @@ class MRCApplication:
         self.show_login_screen()
     
     def show_login_screen(self):
-        # Clear window
         for widget in self.root.winfo_children():
             widget.destroy()
         
-        # Title
-        tk.Label(self.root, text="Login", font=("Arial", 16)).pack(pady=20)
+        tk.Label(self.root, text="Login", font=("Helvetica", 16)).pack(pady=20)
         
-        # Username
         tk.Label(self.root, text="Username:").pack()
         self.username_entry = tk.Entry(self.root)
         self.username_entry.pack()
         
-        # Password
         tk.Label(self.root, text="Password:").pack()
         self.password_entry = tk.Entry(self.root, show="*")
         self.password_entry.pack()
         
-        # Login button
         tk.Button(self.root, text="Login", command=self.login).pack(pady=20)
     
     def login(self):
         username = self.username_entry.get()
         password = self.password_entry.get()
         
-        # Connect to database
         self.db = DatabaseConnection(config['host'], username, password, config['database'])
         
         if self.db.connect():
             self.trip_bll = TripBLL(self.db)
             self.vessel_bll = VesselBLL(self.db)
             self.passenger_bll = PassengerBLL(self.db)
-            messagebox.showinfo("Success", "Logged in!")
+            messagebox.showinfo("","Logged in!")
             self.show_main_menu()
         else:
-            messagebox.showerror("Error", "Login failed")
+            messagebox.showerror("","Login failed")
     
     def show_main_menu(self):
-        # Clear window
         for widget in self.root.winfo_children():
             widget.destroy()
         
-        # Title
-        tk.Label(self.root, text="Main Menu", font=("Arial", 16)).pack(pady=20)
+        tk.Label(self.root, text="Main Menu", font=("Helvetica", 16)).pack(pady=20)
         
-        # Buttons
         tk.Button(self.root, text="View All Trips", command=self.view_trips, width=20).pack(pady=10)
-        tk.Button(self.root, text="Add Trip", command=self.add_trip, width=20).pack(pady=10)
+        tk.Button(self.root, text="Add A Trip", command=self.add_trip, width=20).pack(pady=10)
         tk.Button(self.root, text="Logout", command=self.logout, width=20).pack(pady=10)
     
     def view_trips(self):
-        # Get trips from BLL
         trips = self.trip_bll.get_all_trips()
         
-        # Clear window
         for widget in self.root.winfo_children():
             widget.destroy()
         
-        # Title
-        tk.Label(self.root, text="All Trips", font=("Arial", 16)).pack(pady=10)
+        tk.Label(self.root, text="All Trips", font=("Helvetica", 16)).pack(pady=10)
         
-        # Create text area with scrollbar
         frame = tk.Frame(self.root)
         frame.pack(fill="both", expand=True, padx=10, pady=10)
         
         scrollbar = tk.Scrollbar(frame)
         scrollbar.pack(side="right", fill="y")
         
-        text = tk.Text(frame, yscrollcommand=scrollbar.set)
+        text = tk.Text(frame, font=("Helvetica", 12), yscrollcommand=scrollbar.set)
         text.pack(side="left", fill="both", expand=True)
         scrollbar.config(command=text.yview)
         
-        # Display trips
         if trips:
             for trip in trips:
                 trip_info = f"Date/Time: {trip['Date and Time']} | "
@@ -104,26 +90,20 @@ class MRCApplication:
         else:
             text.insert("end", "No trips found")
         
-        # Back button
         tk.Button(self.root, text="Back", command=self.show_main_menu).pack(pady=10)
     
     def add_trip(self):
-        # Clear window
         for widget in self.root.winfo_children():
             widget.destroy()
         
-        # Title
-        tk.Label(self.root, text="Add New Trip", font=("Arial", 16)).pack(pady=10)
+        tk.Label(self.root, text="Add New Trip", font=("Helvetica", 16)).pack(pady=10)
         
-        # Form frame
         form_frame = tk.Frame(self.root)
         form_frame.pack(pady=20)
         
-        # Get vessels and passengers from database
         vessels = self.vessel_bll.get_all_vessels()
         passengers = self.passenger_bll.get_all_passengers()
         
-        # Vessel dropdown
         tk.Label(form_frame, text="Vessel:").grid(row=0, column=0, sticky="e", padx=5, pady=5)
         vessel_var = tk.StringVar()
         vessel_names = [v['Vessel'] for v in vessels]
@@ -132,7 +112,6 @@ class MRCApplication:
         if vessel_names:
             vessel_dropdown.current(0)
         
-        # Passenger dropdown
         tk.Label(form_frame, text="Passenger:").grid(row=1, column=0, sticky="e", padx=5, pady=5)
         passenger_var = tk.StringVar()
         passenger_names = [f"{p['First_Name']} {p['Last_Name']}" for p in passengers]
@@ -141,12 +120,10 @@ class MRCApplication:
         if passenger_names:
             passenger_dropdown.current(0)
         
-        # Date picker
         tk.Label(form_frame, text="Date:").grid(row=2, column=0, sticky="e", padx=5, pady=5)
         date_entry = DateEntry(form_frame, width=28, background='darkblue', foreground='white', borderwidth=2)
         date_entry.grid(row=2, column=1, padx=5, pady=5)
         
-        # Time entry (hours and minutes)
         tk.Label(form_frame, text="Departure Time:").grid(row=3, column=0, sticky="e", padx=5, pady=5)
         time_frame = tk.Frame(form_frame)
         time_frame.grid(row=3, column=1, padx=5, pady=5, sticky="w")
@@ -160,41 +137,32 @@ class MRCApplication:
         minute_spinner = ttk.Spinbox(time_frame, from_=0, to=59, textvariable=minute_var, width=5, format="%02.0f")
         minute_spinner.pack(side="left")
         
-        # Length in hours
         tk.Label(form_frame, text="Length (hours):").grid(row=4, column=0, sticky="e", padx=5, pady=5)
         length_entry = tk.Entry(form_frame, width=32)
         length_entry.grid(row=4, column=1, padx=5, pady=5)
         length_entry.insert(0, "2.0")
         
-        # Total passengers
         tk.Label(form_frame, text="Total Passengers:").grid(row=5, column=0, sticky="e", padx=5, pady=5)
         passengers_entry = tk.Entry(form_frame, width=32)
         passengers_entry.grid(row=5, column=1, padx=5, pady=5)
         passengers_entry.insert(0, "1")
         
-        # Submit button
         def submit_trip():
             try:
-                # Get selected vessel name
                 vessel_name = vessel_var.get()
                 
-                # Get selected passenger name and split it
                 passenger_full = passenger_var.get()
                 passenger_parts = passenger_full.split(" ", 1)
                 passenger_first = passenger_parts[0]
                 passenger_last = passenger_parts[1] if len(passenger_parts) > 1 else ""
                 
-                # Get date
                 trip_date = date_entry.get_date().strftime('%Y-%m-%d')
                 
-                # Get time
                 departure_time = f"{hour_var.get()}:{minute_var.get()}:00"
                 
-                # Get length and total passengers
                 length = float(length_entry.get())
                 total_pass = int(passengers_entry.get())
                 
-                # Add trip through BLL
                 result = self.trip_bll.add_trip(
                     vessel_name, 
                     passenger_first, 
@@ -205,7 +173,6 @@ class MRCApplication:
                     total_pass
                 )
                 
-                # Check for errors
                 if result and 'error' in result:
                     messagebox.showerror("Error", result['error'])
                 else:
@@ -227,7 +194,7 @@ class MRCApplication:
         self.trip_bll = None
         self.vessel_bll = None
         self.passenger_bll = None
-        messagebox.showinfo("Logout", "Logged out")
+        messagebox.showinfo("", "Logged out")
         self.show_login_screen()
 
 def main():
