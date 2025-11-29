@@ -37,3 +37,10 @@ From the View File if your Visual Code press play ▶️ button.
 It will ask for the information from your config file. If you have done the connections step your defaults are valid and you can just press enter through the connection information requests.
 
 Information will display.
+
+## Work the GUI
+
+1. Open the View_GUI.py file
+2. From the View_GUI File if your Visual Code press play ▶️ button.
+3. Login with your databases username and password
+4. After successful login to your database choose from the options available.
