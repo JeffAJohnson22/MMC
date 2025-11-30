@@ -44,7 +44,7 @@ class MRCApplication:
             self.trip_bll = TripBLL(self.db)
             self.vessel_bll = VesselBLL(self.db)
             self.passenger_bll = PassengerBLL(self.db)
-            messagebox.showinfo("","Logged in!")
+            messagebox.showinfo("","Logged in")
             self.show_main_menu()
         else:
             messagebox.showerror("","Login failed")
