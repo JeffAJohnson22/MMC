@@ -577,25 +577,24 @@ BEGIN
 END //
 DELIMITER ;
 
--- PROCEDURE 14: Get Transformation Users
-DROP PROCEDURE IF EXISTS Get_Transformation_Users;
+-- PROCEDURE 14: Get Character Transformations
+DROP PROCEDURE IF EXISTS Get_Character_Transformations;
 DELIMITER //
-CREATE PROCEDURE Get_Transformation_Users(IN p_Transformation_ID INT)
+CREATE PROCEDURE Get_Character_Transformations(IN p_Character_ID INT)
 BEGIN
     SELECT 
-        c.Character_Name,
-        c.Race,
-        c.Base_Power_Level,
-        ct.Date_Unlocked,
-        ct.Mastery_Level,
+        t.Transformation_ID,
         t.Transformation_Name,
         t.Power_Multiplier,
+        t.Energy_Drain_Rate,
+        ct.Date_Unlocked,
+        ct.Mastery_Level,
         ROUND(c.Base_Power_Level * t.Power_Multiplier, 2) AS Max_Power_With_Transform
     FROM Character_Transformations ct
-    JOIN Characters c ON ct.Character_ID = c.Character_ID
     JOIN Transformations t ON ct.Transformation_ID = t.Transformation_ID
-    WHERE ct.Transformation_ID = p_Transformation_ID
-    ORDER BY Max_Power_With_Transform DESC;
+    JOIN Characters c ON ct.Character_ID = c.Character_ID
+    WHERE ct.Character_ID = p_Character_ID
+    ORDER BY t.Power_Multiplier DESC;
 END //
 DELIMITER ;
 

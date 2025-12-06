@@ -83,6 +83,17 @@ class CharacterBLL:
                     battle['Damage_Taken'] = f"{battle['Damage_Taken']:,.0f}"
                 battle['Result'] = 'Won' if battle.get('Was_Winner') else 'Lost'
         return history
+    
+    def get_character_transformations(self, character_id):
+        """Get all transformations a character can use"""
+        transformations = self.dal.get_character_transformations(character_id)
+        if transformations:
+            for trans in transformations:
+                if trans.get('Power_Multiplier'):
+                    trans['Multiplier'] = f"{trans['Power_Multiplier']}x"
+                if trans.get('Max_Power_With_Transform'):
+                    trans['Max_Power_With_Transform'] = f"{trans['Max_Power_With_Transform']:,.0f}"
+        return transformations
 
 
 class BattleBLL:
@@ -201,14 +212,3 @@ class TransformationBLL:
                 if trans.get('Energy_Drain_Rate'):
                     trans['Energy_Drain_Rate'] = f"{trans['Energy_Drain_Rate']:.1f}"
         return transformations
-    
-    def get_transformation_users(self, transformation_id):
-        """Get users of a transformation"""
-        users = self.dal.get_transformation_users(transformation_id)
-        if users:
-            for user in users:
-                if user.get('Base_Power_Level'):
-                    user['Base_Power_Level'] = f"{user['Base_Power_Level']:,.0f}"
-                if user.get('Max_Power_With_Transform'):
-                    user['Max_Power_With_Transform'] = f"{user['Max_Power_With_Transform']:,.0f}"
-        return users

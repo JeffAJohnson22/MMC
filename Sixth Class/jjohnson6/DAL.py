@@ -97,6 +97,10 @@ class CharacterDAL:
     def get_character_battle_history(self, character_id):
         """Get character's battle history with statistics"""
         return self.db.execute_procedure('Get_Character_Battle_History', [character_id])
+    
+    def get_character_transformations(self, character_id):
+        """Get all transformations a character can use"""
+        return self.db.execute_procedure('Get_Character_Transformations', [character_id])
 
 
 class BattleDAL:
@@ -142,7 +146,3 @@ class TransformationDAL:
     def get_all_transformations(self):
         """Get all transformations"""
         return self.db.execute_procedure('Get_All_Transformations')
-    
-    def get_transformation_users(self, transformation_id):
-        """Get all characters who can use a transformation"""
-        return self.db.execute_procedure('Get_Transformation_Users', [transformation_id])
