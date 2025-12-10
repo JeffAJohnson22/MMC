@@ -46,6 +46,7 @@ CREATE TABLE Battles (
 
 -- Table 4: Battle_Participants (Composite Primary Key - tracks who fought in which battles)
 -- This is the junction table with composite primary key
+-- Links to Character_Transformations to ensure characters only use transformations they've unlocked
 CREATE TABLE Battle_Participants (
     Battle_ID INT NOT NULL,
     Character_ID INT NOT NULL,
@@ -56,8 +57,8 @@ CREATE TABLE Battle_Participants (
     Was_Winner BOOLEAN DEFAULT FALSE,
     PRIMARY KEY (Battle_ID, Character_ID),
     FOREIGN KEY (Battle_ID) REFERENCES Battles(Battle_ID) ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY (Character_ID) REFERENCES Characters(Character_ID) ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY (Transformation_ID) REFERENCES Transformations(Transformation_ID) ON DELETE SET NULL ON UPDATE CASCADE
+    -- Composite foreign key to Character_Transformations ensures data integrity
+    FOREIGN KEY (Character_ID, Transformation_ID) REFERENCES Character_Transformations(Character_ID, Transformation_ID) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- Table 5: Character_Transformations (tracks which characters can use which transformations)
