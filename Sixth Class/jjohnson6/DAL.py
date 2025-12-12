@@ -59,19 +59,23 @@ class CharacterDAL:
     def __init__(self, db_connection):
         self.db = db_connection
     
-    def add_character(self, name, race, alignment, birth_date, power_level, is_alive, planet):
+    def add_character(self, name, race, alignment, power_level, is_alive, planet):
         """Add new character"""
-        params = (name, race, alignment, birth_date, power_level, is_alive, planet)
+        params = (name, race, alignment, power_level, is_alive, planet)
         return self.db.execute_procedure('Add_Character', params)
     
-    def update_character(self, character_id, name, power_level, is_alive):
-        """Update character"""
-        params = (character_id, name, power_level, is_alive)
-        return self.db.execute_procedure('Update_Character', params)
-    
     def delete_character(self, character_id):
-        """Delete character (cascades to Battle_Participants)"""
-        return self.db.execute_procedure('Delete_Character', (character_id,))
+        """Delete character directly (cascades to Battle_Participants)"""
+        try:
+            cursor = self.db.connection.cursor()
+            cursor.execute("DELETE FROM Characters WHERE Character_ID = %s", (character_id,))
+            self.db.connection.commit()
+            rows_deleted = cursor.rowcount
+            cursor.close()
+            return rows_deleted > 0
+        except Error as e:
+            print(f"Error deleting character: {e}")
+            return False
     
     def get_all_characters(self):
         """Get all characters"""
@@ -92,38 +96,3 @@ class BattleDAL:
     def get_all_battles(self):
         """Get all battles with aggregate data"""
         return self.db.execute_procedure('Get_All_Battles')
-    
-    def add_battle_participant(self, battle_id, character_id, transformation_id, 
-                               power_level, damage_dealt, damage_taken, was_winner):
-        """Add participant to battle"""
-        params = (battle_id, character_id, transformation_id, power_level, 
-                 damage_dealt, damage_taken, was_winner)
-        return self.db.execute_procedure('Add_Battle_Participant', params)
-    
-    def get_battles_list(self):
-        """Get simple battle list"""
-        try:
-            cursor = self.db.connection.cursor(dictionary=True)
-            cursor.execute("SELECT Battle_ID, Battle_Name FROM Battles ORDER BY Battle_Date DESC")
-            results = cursor.fetchall()
-            cursor.close()
-            return results
-        except Error as e:
-            print(f"Error getting battles: {e}")
-            return []
-
-class TransformationDAL:
-    def __init__(self, db_connection):
-        self.db = db_connection
-    
-    def get_all_transformations(self):
-        """Get all transformations"""
-        try:
-            cursor = self.db.connection.cursor(dictionary=True)
-            cursor.execute("SELECT * FROM Transformations ORDER BY Power_Multiplier DESC")
-            results = cursor.fetchall()
-            cursor.close()
-            return results
-        except Error as e:
-            print(f"Error getting transformations: {e}")
-            return []

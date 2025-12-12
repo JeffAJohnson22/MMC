@@ -5,8 +5,7 @@ Dragon Ball Z Database Management System
 
 import tkinter as tk
 from tkinter import messagebox, ttk
-from tkcalendar import DateEntry
-from BLL import CharacterBLL, BattleBLL, TransformationBLL
+from BLL import CharacterBLL, BattleBLL
 from DAL import DatabaseConnection
 from config import config
 from datetime import datetime
@@ -24,7 +23,6 @@ class DBZApplication:
         self.db = None
         self.character_bll = None
         self.battle_bll = None
-        self.transformation_bll = None
         
         self.show_login()
     
@@ -46,7 +44,7 @@ class DBZApplication:
         tk.Label(frame, text="Password:", bg='#FF8C00', fg='white', font=('Arial', 12)).pack()
         self.password_entry = tk.Entry(frame, show='*', font=('Arial', 12), width=25)
         self.password_entry.pack(pady=5)
-        self.password_entry.insert(0, config.get('password', ''))
+        self.password_entry.insert(0, config.get('password', 'password'))
         
         tk.Button(frame, text="Login", command=self.login, bg='#4CAF50', fg='white',
                  font=('Arial', 12, 'bold'), width=20).pack(pady=20)
@@ -67,7 +65,6 @@ class DBZApplication:
         if self.db.connect():
             self.character_bll = CharacterBLL(self.db)
             self.battle_bll = BattleBLL(self.db)
-            self.transformation_bll = TransformationBLL(self.db)
             messagebox.showinfo("Success", "Connected to Database!")
             self.show_main_menu()
         else:
@@ -264,26 +261,21 @@ class DBZApplication:
                                       values=['Hero', 'Villain', 'Neutral'])
         alignment_combo.grid(row=2, column=1, pady=5)
         
-        # Birth Date
-        tk.Label(form_frame, text="Birth Date:", bg='#FF8C00', fg='white', font=('Arial', 12)).grid(row=3, column=0, sticky='e', padx=10, pady=5)
-        date_entry = DateEntry(form_frame, width=28, font=('Arial', 12))
-        date_entry.grid(row=3, column=1, pady=5)
-        
         # Power Level
-        tk.Label(form_frame, text="Base Power Level:", bg='#FF8C00', fg='white', font=('Arial', 12)).grid(row=4, column=0, sticky='e', padx=10, pady=5)
+        tk.Label(form_frame, text="Base Power Level:", bg='#FF8C00', fg='white', font=('Arial', 12)).grid(row=3, column=0, sticky='e', padx=10, pady=5)
         power_entry = tk.Entry(form_frame, font=('Arial', 12), width=30)
-        power_entry.grid(row=4, column=1, pady=5)
+        power_entry.grid(row=3, column=1, pady=5)
         power_entry.insert(0, '1000')
         
         # Is Alive
-        tk.Label(form_frame, text="Is Alive:", bg='#FF8C00', fg='white', font=('Arial', 12)).grid(row=5, column=0, sticky='e', padx=10, pady=5)
+        tk.Label(form_frame, text="Is Alive:", bg='#FF8C00', fg='white', font=('Arial', 12)).grid(row=4, column=0, sticky='e', padx=10, pady=5)
         alive_var = tk.BooleanVar(value=True)
-        tk.Checkbutton(form_frame, variable=alive_var, bg='#FF8C00', font=('Arial', 12)).grid(row=5, column=1, sticky='w', pady=5)
+        tk.Checkbutton(form_frame, variable=alive_var, bg='#FF8C00', font=('Arial', 12)).grid(row=4, column=1, sticky='w', pady=5)
         
         # Planet
-        tk.Label(form_frame, text="Planet Origin:", bg='#FF8C00', fg='white', font=('Arial', 12)).grid(row=6, column=0, sticky='e', padx=10, pady=5)
+        tk.Label(form_frame, text="Planet Origin:", bg='#FF8C00', fg='white', font=('Arial', 12)).grid(row=5, column=0, sticky='e', padx=10, pady=5)
         planet_entry = tk.Entry(form_frame, font=('Arial', 12), width=30)
-        planet_entry.grid(row=6, column=1, pady=5)
+        planet_entry.grid(row=5, column=1, pady=5)
         planet_entry.insert(0, 'Earth')
         
         def submit():
@@ -291,12 +283,11 @@ class DBZApplication:
                 name = name_entry.get()
                 race = race_var.get()
                 alignment = alignment_var.get()
-                birth_date = date_entry.get_date().strftime('%Y-%m-%d')
                 power_level = float(power_entry.get())
                 is_alive = alive_var.get()
                 planet = planet_entry.get()
                 
-                result = self.character_bll.add_character(name, race, alignment, birth_date,
+                result = self.character_bll.add_character(name, race, alignment,
                                                          power_level, is_alive, planet)
                 
                 if result and 'error' in str(result):
@@ -343,7 +334,7 @@ class DBZApplication:
         powers = [float(char['Base_Power_Level']) for char in top_characters]
         
         # Create bar chart
-        colors = ['#FF6B6B' if char['Alignment'] == 'Villain' else '#4ECDC4' if char['Alignment'] == 'Hero' else '#95E1D3' 
+        colors = ["#FF0000" if char['Alignment'] == 'Villain' else '#4ECDC4' if char['Alignment'] == 'Hero' else "#00FD22" 
                   for char in top_characters]
         
         bars = ax.barh(names, powers, color=colors)
@@ -361,8 +352,8 @@ class DBZApplication:
         from matplotlib.patches import Patch
         legend_elements = [
             Patch(facecolor='#4ECDC4', label='Hero'),
-            Patch(facecolor='#FF6B6B', label='Villain'),
-            Patch(facecolor='#95E1D3', label='Neutral')
+            Patch(facecolor='#FF0000', label='Villain'),
+            Patch(facecolor='#00FD22', label='Neutral')
         ]
         ax.legend(handles=legend_elements, loc='lower right')
         
@@ -386,7 +377,6 @@ class DBZApplication:
         self.db = None
         self.character_bll = None
         self.battle_bll = None
-        self.transformation_bll = None
         messagebox.showinfo("Logged Out", "Successfully logged out")
         self.show_login()
     
