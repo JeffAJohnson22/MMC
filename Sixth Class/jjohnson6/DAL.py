@@ -1,6 +1,6 @@
 """
-Data Access Layer (DAL)
-Handles all direct database interactions using stored procedures and views only.
+Simplified Data Access Layer (DAL)
+Handles database interactions using stored procedures
 """
 
 import mysql.connector
@@ -54,86 +54,63 @@ class DatabaseConnection:
         except Error as e:
             print(f"Error executing procedure {procedure_name}: {e}")
             return None
-    
-    def execute_query(self, query):
-        """Execute a direct query (for views)"""
-        try:
-            cursor = self.connection.cursor(dictionary=True)
-            cursor.execute(query)
-            results = cursor.fetchall()
-            cursor.close()
-            return results
-        except Error as e:
-            print(f"Error executing query: {e}")
-            return None
-
 
 class CharacterDAL:
     def __init__(self, db_connection):
         self.db = db_connection
     
-    def get_all_characters(self):
-        """Get all characters using stored procedure"""
-        return self.db.execute_procedure('Get_All_Characters')
-    
-    def get_character_details(self, character_id):
-        """Get detailed character information"""
-        return self.db.execute_procedure('Get_Character_Details', [character_id])
-    
-    def add_character(self, name, race, alignment, birth_date, base_power, is_alive, planet, first_appearance):
+    def add_character(self, name, race, alignment, birth_date, power_level, is_alive, planet):
         """Add new character"""
-        return self.db.execute_procedure('Add_Character', 
-            [name, race, alignment, birth_date, base_power, is_alive, planet, first_appearance])
+        params = (name, race, alignment, birth_date, power_level, is_alive, planet)
+        return self.db.execute_procedure('Add_Character', params)
     
-    def update_character(self, char_id, name, race, alignment, birth_date, base_power, is_alive, planet):
-        """Update existing character"""
-        return self.db.execute_procedure('Update_Character',
-            [char_id, name, race, alignment, birth_date, base_power, is_alive, planet])
+    def update_character(self, character_id, name, power_level, is_alive):
+        """Update character"""
+        params = (character_id, name, power_level, is_alive)
+        return self.db.execute_procedure('Update_Character', params)
     
     def delete_character(self, character_id):
-        """Delete character (cascades to related tables)"""
-        return self.db.execute_procedure('Delete_Character', [character_id])
+        """Delete character (cascades to Battle_Participants)"""
+        return self.db.execute_procedure('Delete_Character', (character_id,))
     
-    def get_character_battle_history(self, character_id):
-        """Get character's battle history with statistics"""
-        return self.db.execute_procedure('Get_Character_Battle_History', [character_id])
-
+    def get_all_characters(self):
+        """Get all characters"""
+        try:
+            cursor = self.db.connection.cursor(dictionary=True)
+            cursor.execute("SELECT * FROM Characters ORDER BY Base_Power_Level DESC")
+            results = cursor.fetchall()
+            cursor.close()
+            return results
+        except Error as e:
+            print(f"Error getting characters: {e}")
+            return []
 
 class BattleDAL:
     def __init__(self, db_connection):
         self.db = db_connection
     
     def get_all_battles(self):
-        """Get all battles with summary information"""
+        """Get all battles with aggregate data"""
         return self.db.execute_procedure('Get_All_Battles')
     
-    def get_battle_details(self, battle_id):
-        """Get detailed battle information including participants"""
-        return self.db.execute_procedure('Get_Battle_Details', [battle_id])
-    
-    def add_battle(self, name, location, battle_date, start_time, duration, outcome, saga, destroyed_planet):
-        """Add new battle"""
-        return self.db.execute_procedure('Add_Battle',
-            [name, location, battle_date, start_time, duration, outcome, saga, destroyed_planet])
-    
-    def update_battle(self, battle_id, name, location, battle_date, start_time, duration, outcome, saga, destroyed_planet):
-        """Update existing battle"""
-        return self.db.execute_procedure('Update_Battle',
-            [battle_id, name, location, battle_date, start_time, duration, outcome, saga, destroyed_planet])
-    
-    def delete_battle(self, battle_id):
-        """Delete battle (cascades to participants)"""
-        return self.db.execute_procedure('Delete_Battle', [battle_id])
-    
-    def add_battle_participant(self, battle_id, character_id, transformation_id, power_level, damage_dealt, damage_taken, was_winner):
+    def add_battle_participant(self, battle_id, character_id, transformation_id, 
+                               power_level, damage_dealt, damage_taken, was_winner):
         """Add participant to battle"""
-        return self.db.execute_procedure('Add_Battle_Participant',
-            [battle_id, character_id, transformation_id, power_level, damage_dealt, damage_taken, was_winner])
+        params = (battle_id, character_id, transformation_id, power_level, 
+                 damage_dealt, damage_taken, was_winner)
+        return self.db.execute_procedure('Add_Battle_Participant', params)
     
-    def get_saga_statistics(self):
-        """Get aggregate statistics by saga"""
-        return self.db.execute_procedure('Get_Saga_Statistics')
-
+    def get_battles_list(self):
+        """Get simple battle list"""
+        try:
+            cursor = self.db.connection.cursor(dictionary=True)
+            cursor.execute("SELECT Battle_ID, Battle_Name FROM Battles ORDER BY Battle_Date DESC")
+            results = cursor.fetchall()
+            cursor.close()
+            return results
+        except Error as e:
+            print(f"Error getting battles: {e}")
+            return []
 
 class TransformationDAL:
     def __init__(self, db_connection):
@@ -141,8 +118,12 @@ class TransformationDAL:
     
     def get_all_transformations(self):
         """Get all transformations"""
-        return self.db.execute_procedure('Get_All_Transformations')
-    
-    def get_transformation_users(self, transformation_id):
-        """Get all characters who can use a transformation"""
-        return self.db.execute_procedure('Get_Transformation_Users', [transformation_id])
+        try:
+            cursor = self.db.connection.cursor(dictionary=True)
+            cursor.execute("SELECT * FROM Transformations ORDER BY Power_Multiplier DESC")
+            results = cursor.fetchall()
+            cursor.close()
+            return results
+        except Error as e:
+            print(f"Error getting transformations: {e}")
+            return []
