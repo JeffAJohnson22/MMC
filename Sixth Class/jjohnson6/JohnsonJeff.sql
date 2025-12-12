@@ -55,13 +55,13 @@ CREATE TABLE Battle_Participants (
 
 -- Insert Characters
 INSERT INTO Characters (Character_Name, Race, Alignment, Birth_Date, Base_Power_Level, Is_Alive, Planet_Origin) VALUES
-('Goku', 'Saiyan', 'Hero', '1984-04-16', 10000.00, TRUE, 'Vegeta'),
-('Vegeta', 'Saiyan', 'Hero', '1982-01-01', 9500.00, TRUE, 'Vegeta'),
-('Gohan', 'Saiyan', 'Hero', '2000-05-11', 8000.00, TRUE, 'Earth'),
-('Piccolo', 'Namekian', 'Hero', '1988-05-09', 7500.00, TRUE, 'Namek'),
-('Krillin', 'Human', 'Hero', '1980-10-29', 1500.00, TRUE, 'Earth'),
-('Trunks', 'Saiyan', 'Hero', '2015-07-09', 7000.00, TRUE, 'Earth'),
-('Goten', 'Saiyan', 'Hero', '2017-11-12', 6500.00, TRUE, 'Earth'),
+('Goku', 'Saiyan', 'Hero', '1984-04-16', 100000.00, TRUE, 'Vegeta'),
+('Vegeta', 'Saiyan', 'Hero', '1982-01-01', 95000.00, TRUE, 'Vegeta'),
+('Gohan', 'Saiyan', 'Hero', '2000-05-11', 80000.00, TRUE, 'Earth'),
+('Piccolo', 'Namekian', 'Hero', '1988-05-09', 75000.00, TRUE, 'Namek'),
+('Krillin', 'Human', 'Hero', '1980-10-29', 15000.00, TRUE, 'Earth'),
+('Trunks', 'Saiyan', 'Hero', '2015-07-09', 70000.00, TRUE, 'Earth'),
+('Goten', 'Saiyan', 'Hero', '2017-11-12', 65000.00, TRUE, 'Earth'),
 ('Frieza', 'Other', 'Villain', '1931-01-01', 12000.00, TRUE, 'Unknown'),
 ('Cell', 'Android', 'Villain', '1992-01-01', 11000.00, FALSE, 'Earth'),
 ('Majin Buu', 'Majin', 'Villain', '1000-01-01', 13000.00, TRUE, 'Unknown'),
@@ -72,9 +72,9 @@ INSERT INTO Characters (Character_Name, Race, Alignment, Birth_Date, Base_Power_
 ('Raditz', 'Saiyan', 'Villain', '1983-01-01', 1500.00, FALSE, 'Vegeta'),
 ('Nappa', 'Saiyan', 'Villain', '1950-01-01', 4000.00, FALSE, 'Vegeta'),
 ('Broly', 'Saiyan', 'Villain', '1984-04-16', 15000.00, TRUE, 'Vegeta'),
-('Beerus', 'Other', 'Neutral', '1000-01-01', 50000.00, TRUE, 'Beerus Planet'),
+('Beerus', 'Other', 'Neutral', '1000-01-01', 90000.00, TRUE, 'Beerus Planet'),
 ('Hit', 'Other', 'Neutral', '1000-01-01', 30000.00, TRUE, 'Universe 6'),
-('Jiren', 'Other', 'Hero', '1990-01-01', 80000.00, TRUE, 'Universe 11'),
+('Jiren', 'Other', 'Hero', '1990-01-01', 60000.00, TRUE, 'Universe 11'),
 ('Gogeta', 'Saiyan', 'Hero', NULL, 20000.00, TRUE, NULL),
 ('Vegito', 'Saiyan', 'Hero', NULL, 20000.00, TRUE, NULL),
 ('Gotenks', 'Saiyan', 'Hero', NULL, 12000.00, TRUE, NULL),
@@ -99,7 +99,9 @@ INSERT INTO Transformations (Transformation_Name, Power_Multiplier, Description)
 ('Perfect Form', 50.00, 'Cell perfect state'),
 ('Fusion', 100.00, 'Fusion dance combining two warriors'),
 ('Great Ape', 10.00, 'Saiyan giant ape transformation'),
-('Majin', 2.50, 'Dark magic enhancement from Babidi');
+('Majin', 2.50, 'Dark magic enhancement from Babidi'),
+('Zenkai Boost', 1.50, 'Power increase after recovery from near death'),
+('Hakai', 2550.00, 'Destoryer technique used by Gods of Destruction');
 
 -- Insert Battles 
 INSERT INTO Battles (Battle_Name, Location, Battle_Date, Start_Time, Duration_Minutes, Outcome, Saga) VALUES
@@ -136,32 +138,32 @@ INSERT INTO Battle_Participants (Battle_ID, Character_ID, Transformation_ID, Pow
 (4, 2, 12, 850000000.00, 350000000.00, 350000000.00, FALSE),
 (5, 1, 3, 1600000000.00, 800000000.00, 400000000.00, TRUE),
 (5, 2, 2, 1000000000.00, 500000000.00, 300000000.00, TRUE),
-(5, 10, NULL, 1300000000.00, 700000000.00, 1300000000.00, FALSE),
+(5, 10, 14, 1300000000.00, 700000000.00, 1300000000.00, FALSE),
 (6, 22, 1, 5000000000.00, 3000000000.00, 500000000.00, TRUE),
-(6, 10, NULL, 2000000000.00, 500000000.00, 3000000000.00, FALSE),
+(6, 10, 1, 2000000000.00, 500000000.00, 3000000000.00, FALSE),
 (7, 1, 4, 5000000000.00, 2000000000.00, 8000000000.00, FALSE),
-(7, 18, NULL, 50000000000.00, 8000000000.00, 2000000000.00, TRUE),
+(7, 18, 1, 50000000000.00, 8000000000.00, 2000000000.00, TRUE),
 (8, 1, 5, 10000000000.00, 12000000000.00, 5000000000.00, TRUE),
 (8, 8, 8, 12000000000.00, 5000000000.00, 12000000000.00, FALSE),
 (9, 1, 5, 10000000000.00, 15000000000.00, 20000000000.00, FALSE),
-(9, 19, NULL, 30000000000.00, 20000000000.00, 15000000000.00, TRUE),
+(9, 19, 1, 30000000000.00, 20000000000.00, 15000000000.00, TRUE),
 (10, 1, 6, 500000000000.00, 600000000000.00, 400000000000.00, TRUE),
-(10, 20, NULL, 480000000000.00, 400000000000.00, 600000000000.00, FALSE),
-(11, 1, NULL, 416.00, 924.00, 600.00, TRUE),
-(11, 4, NULL, 408.00, 1330.00, 400.00, TRUE),
-(11, 15, NULL, 1500.00, 1000.00, 1754.00, FALSE),
+(10, 20, 1, 480000000000.00, 400000000000.00, 600000000000.00, FALSE),
+(11, 1, 7, 416.00, 924.00, 600.00, TRUE),
+(11, 4, 1, 408.00, 1330.00, 400.00, TRUE),
+(11, 15, 1, 1500.00, 1000.00, 1754.00, FALSE),
 (14, 1, 7, 360000.00, 120000.00, 80000.00, TRUE),
 (15, 26, 1, 2850000.00, 120000000.00, 1000.00, TRUE),
 (15, 8, 9, 120000000.00, 1000.00, 120000000.00, FALSE),
 (17, 21, 5, 50000000000.00, 75000000000.00, 10000000000.00, TRUE),
 (17, 17, 1, 45000000000.00, 10000000000.00, 75000000000.00, FALSE),
 (12, 2, 1, 2500000.00, 22000.00, 5000.00, TRUE),
-(13, 3, NULL, 2800.00, 4000.00, 3000.00, TRUE),
+(13, 3, 1, 2800.00, 4000.00, 3000.00, TRUE),
 (13, 16, 11, 40000.00, 3000.00, 4000.00, FALSE),
 (16, 2, 1, 950000000.00, 500000000.00, 800000000.00, FALSE),
 (16, 9, 9, 1100000000.00, 800000000.00, 500000000.00, TRUE),
 (18, 23, 3, 6000000000.00, 2000000000.00, 1500000000.00, FALSE),
-(18, 10, NULL, 2500000000.00, 1500000000.00, 2000000000.00, FALSE),
+(18, 10, 14, 2500000000.00, 1500000000.00, 2000000000.00, FALSE),
 (19, 2, 1, 475000000.00, 68000000.00, 10000.00, TRUE),
 (19, 13, NULL, 8500.00, 10000.00, 68000000.00, FALSE),
 (20, 1, 2, 1000000000.00, 500000000.00, 200000000.00, TRUE);
@@ -284,7 +286,14 @@ DELIMITER ;
 -- ============================================================================
 
 SELECT 'Database Created Successfully!' AS Status;
-SELECT COUNT(*) AS Total_Characters FROM Characters;
-SELECT COUNT(*) AS Total_Transformations FROM Transformations;
-SELECT COUNT(*) AS Total_Battles FROM Battles;
-SELECT COUNT(*) AS Total_Battle_Participants FROM Battle_Participants;
+
+-- Show actual data
+SELECT * FROM Characters;
+
+SELECT * FROM Transformations;
+
+SELECT * FROM Battles;
+
+SELECT * FROM Battle_Participants;
+
+SELECT * FROM Battle_Summary_View;
