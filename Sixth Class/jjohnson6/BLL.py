@@ -3,7 +3,7 @@ Simplified Business Logic Layer (BLL)
 Contains validation logic between View and Data Access Layer
 """
 
-from DAL_Simplified import CharacterDAL, BattleDAL, TransformationDAL
+from DAL import CharacterDAL, BattleDAL, TransformationDAL
 from datetime import datetime
 
 class CharacterBLL:

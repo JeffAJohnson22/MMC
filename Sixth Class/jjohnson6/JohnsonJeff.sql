@@ -1,11 +1,9 @@
 -- Dragon Ball Z Database 
--- Final Project - Jeff Johnson
 -- CSC 6302
 
 DROP DATABASE IF EXISTS DragonBallZ;
 CREATE DATABASE DragonBallZ;
 USE DragonBallZ;
-
 
 -- Table 1: Characters 
 CREATE TABLE Characters (
@@ -190,16 +188,16 @@ ORDER BY b.Battle_Date DESC;
 
 -- PROCEDURE 1: READ 
 DROP PROCEDURE IF EXISTS Get_All_Battles;
-DELIMITER //
+DELIMITER $$
 CREATE PROCEDURE Get_All_Battles()
 BEGIN
     SELECT * FROM Battle_Summary_View;
-END //
+END $$
 DELIMITER ;
 
 -- PROCEDURE 2: CREATE - Add New Character
 DROP PROCEDURE IF EXISTS Add_Character;
-DELIMITER //
+DELIMITER $$
 CREATE PROCEDURE Add_Character(
     IN p_Character_Name VARCHAR(100),
     IN p_Race ENUM('Saiyan', 'Namekian', 'Human', 'Android', 'Majin', 'Other'),
@@ -219,12 +217,12 @@ BEGIN
     );
     
     SELECT LAST_INSERT_ID() AS Character_ID;
-END //
+END $$
 DELIMITER ;
 
 -- PROCEDURE 3: UPDATE
 DROP PROCEDURE IF EXISTS Update_Character;
-DELIMITER //
+DELIMITER $$
 CREATE PROCEDURE Update_Character(
     IN p_Character_ID INT,
     IN p_Character_Name VARCHAR(100),
@@ -240,22 +238,22 @@ BEGIN
     WHERE Character_ID = p_Character_ID;
     
     SELECT ROW_COUNT() AS Rows_Affected;
-END //
+END $$
 DELIMITER ;
 
 -- PROCEDURE 4: DELETE
 DROP PROCEDURE IF EXISTS Delete_Character;
-DELIMITER //
+DELIMITER $$
 CREATE PROCEDURE Delete_Character(IN p_Character_ID INT)
 BEGIN
     DELETE FROM Characters WHERE Character_ID = p_Character_ID;
     SELECT ROW_COUNT() AS Rows_Deleted;
-END //
+END $$
 DELIMITER ;
 
 -- PROCEDURE 5: CREATE 
 DROP PROCEDURE IF EXISTS Add_Battle_Participant;
-DELIMITER //
+DELIMITER $$
 CREATE PROCEDURE Add_Battle_Participant(
     IN p_Battle_ID INT,
     IN p_Character_ID INT,
@@ -275,7 +273,7 @@ BEGIN
     );
     
     SELECT ROW_COUNT() AS Rows_Inserted;
-END //
+END $$
 DELIMITER ;
 
 -- ============================================================================

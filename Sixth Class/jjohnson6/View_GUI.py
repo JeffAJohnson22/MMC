@@ -6,8 +6,8 @@ Dragon Ball Z Database Management System
 import tkinter as tk
 from tkinter import messagebox, ttk
 from tkcalendar import DateEntry
-from BLL_Simplified import CharacterBLL, BattleBLL, TransformationBLL
-from DAL_Simplified import DatabaseConnection
+from BLL import CharacterBLL, BattleBLL, TransformationBLL
+from DAL import DatabaseConnection
 from config import config
 from datetime import datetime
 import matplotlib.pyplot as plt
