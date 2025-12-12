@@ -18,7 +18,7 @@ class DBZApplication:
     def __init__(self, root):
         self.root = root
         self.root.title("Dragon Ball Z Database Manager")
-        self.root.geometry("900x600")
+        self.root.geometry("900x900")
         self.root.configure(bg='#FF8C00')
         
         self.db = None
@@ -198,8 +198,42 @@ class DBZApplication:
                     char.get('Planet_Origin', '')
                 ))
         
-        tk.Button(self.root, text="Back to Menu", command=self.show_main_menu,
-                 bg='#f44336', fg='white', font=('Arial', 12), width=15).pack(pady=10)
+        # Delete function
+        def delete_selected():
+            selected = tree.selection()
+            if not selected:
+                messagebox.showwarning("No Selection", "Please select a character to delete")
+                return
+            
+            # Get the character ID from the selected row
+            item = selected[0]
+            values = tree.item(item, 'values')
+            char_id = values[0]
+            char_name = values[1]
+            
+            # Confirm deletion
+            confirm = messagebox.askyesno("Confirm Delete", 
+                                         f"Are you sure you want to delete '{char_name}'?\n\nThis will also remove them from all battles.")
+            
+            if confirm:
+                try:
+                    result = self.character_bll.delete_character(char_id)
+                    if result:
+                        messagebox.showinfo("Success", f"Character '{char_name}' deleted successfully!")
+                        self.view_characters()  # Refresh the view
+                    else:
+                        messagebox.showerror("Error", "Failed to delete character")
+                except Exception as e:
+                    messagebox.showerror("Error", f"Failed to delete character: {str(e)}")
+        
+        # Button frame
+        button_frame = tk.Frame(self.root, bg='#FF8C00')
+        button_frame.pack(pady=10)
+        
+        tk.Button(button_frame, text="Delete Selected", command=delete_selected,
+                 bg='#FF5722', fg='white', font=('Arial', 12), width=15).pack(side='left', padx=5)
+        tk.Button(button_frame, text="Back to Menu", command=self.show_main_menu,
+                 bg='#f44336', fg='white', font=('Arial', 12), width=15).pack(side='left', padx=5)
     
     def add_character_form(self):
         """Display add character form"""

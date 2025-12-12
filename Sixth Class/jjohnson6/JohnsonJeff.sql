@@ -113,7 +113,7 @@ INSERT INTO Battles (Battle_Name, Location, Battle_Date, Start_Time, Duration_Mi
 ('Goku vs Frieza - Resurrection', 'Earth', '2015-08-02', '12:00:00', 90, 'Hero Victory', 'Resurrection F'),
 ('Goku vs Hit', 'Tournament Arena', '2016-02-21', '10:00:00', 30, 'Villain Victory', 'Universe 6 Saga'),
 ('Goku Ultra Instinct vs Jiren', 'Tournament of Power', '2018-03-18', '10:30:00', 48, 'Hero Victory', 'Tournament of Power'),
-('Piccolo vs Raditz', 'Earth', '1989-04-19', '11:00:00', 45, 'Hero Victory', 'Saiyan Saga'),
+('Goku and Piccolo vs Raditz', 'Earth', '1989-04-19', '11:00:00', 45, 'Hero Victory', 'Saiyan Saga'),
 ('Vegeta vs Dodoria', 'Planet Namek', '1990-07-18', '09:00:00', 15, 'Hero Victory', 'Frieza Saga'),
 ('Gohan vs Nappa', 'Earth', '1989-11-29', '14:00:00', 30, 'Hero Victory', 'Saiyan Saga'),
 ('Goku vs Captain Ginyu', 'Planet Namek', '1990-11-28', '13:00:00', 40, 'Hero Victory', 'Frieza Saga'),
@@ -161,7 +161,10 @@ INSERT INTO Battle_Participants (Battle_ID, Character_ID, Transformation_ID, Pow
 (16, 2, 1, 950000000.00, 500000000.00, 800000000.00, FALSE),
 (16, 9, 9, 1100000000.00, 800000000.00, 500000000.00, TRUE),
 (18, 23, 3, 6000000000.00, 2000000000.00, 1500000000.00, FALSE),
-(18, 10, NULL, 2500000000.00, 1500000000.00, 2000000000.00, FALSE);
+(18, 10, NULL, 2500000000.00, 1500000000.00, 2000000000.00, FALSE),
+(19, 2, 1, 475000000.00, 68000000.00, 10000.00, TRUE),
+(19, 13, NULL, 8500.00, 10000.00, 68000000.00, FALSE),
+(20, 1, 2, 1000000000.00, 500000000.00, 200000000.00, TRUE);
 
 
 DROP VIEW IF EXISTS Battle_Summary_View;
