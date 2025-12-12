@@ -53,7 +53,6 @@ CREATE TABLE Battle_Participants (
 );
 
 
--- Insert Characters
 INSERT INTO Characters (Character_Name, Race, Alignment, Birth_Date, Base_Power_Level, Is_Alive, Planet_Origin) VALUES
 ('Goku', 'Saiyan', 'Hero', '1984-04-16', 100000.00, TRUE, 'Vegeta'),
 ('Vegeta', 'Saiyan', 'Hero', '1982-01-01', 95000.00, TRUE, 'Vegeta'),
@@ -86,7 +85,6 @@ INSERT INTO Characters (Character_Name, Race, Alignment, Birth_Date, Base_Power_
 ('Bulma', 'Human', 'Hero', '1982-08-18', 5.00, TRUE, 'Earth'),
 ('Master Roshi', 'Human', 'Hero', '1850-01-01', 1000.00, TRUE, 'Earth');
 
--- Insert Transformations 
 INSERT INTO Transformations (Transformation_Name, Power_Multiplier, Description) VALUES
 ('Super Saiyan', 50.00, 'Legendary Saiyan transformation with golden hair'),
 ('Super Saiyan 2', 100.00, 'Ascended form beyond Super Saiyan'),
@@ -103,7 +101,6 @@ INSERT INTO Transformations (Transformation_Name, Power_Multiplier, Description)
 ('Zenkai Boost', 1.50, 'Power increase after recovery from near death'),
 ('Hakai', 2550.00, 'Destoryer technique used by Gods of Destruction');
 
--- Insert Battles 
 INSERT INTO Battles (Battle_Name, Location, Battle_Date, Start_Time, Duration_Minutes, Outcome, Saga) VALUES
 ('Goku vs Vegeta - First Encounter', 'Earth', '1989-12-13', '18:30:00', 120, 'Draw', 'Saiyan Saga'),
 ('Goku vs Frieza', 'Planet Namek', '1991-08-31', '14:00:00', 240, 'Hero Victory', 'Frieza Saga'),
@@ -126,7 +123,6 @@ INSERT INTO Battles (Battle_Name, Location, Battle_Date, Start_Time, Duration_Mi
 ('Vegeta vs Android 19', 'Earth', '1992-03-11', '11:00:00', 20, 'Hero Victory', 'Android Saga'),
 ('Goku vs Pikkon', 'Other World', '1994-08-24', '12:00:00', 35, 'Hero Victory', 'Other World Tournament');
 
--- Insert Battle_Participants
 INSERT INTO Battle_Participants (Battle_ID, Character_ID, Transformation_ID, Power_Level_In_Battle, Damage_Dealt, Damage_Taken, Was_Winner) VALUES
 (1, 1, 7, 32000.00, 15000.00, 18000.00, FALSE),
 (1, 2, 11, 180000.00, 18000.00, 15000.00, FALSE),
@@ -168,7 +164,6 @@ INSERT INTO Battle_Participants (Battle_ID, Character_ID, Transformation_ID, Pow
 (19, 13, NULL, 8500.00, 10000.00, 68000000.00, FALSE),
 (20, 1, 2, 1000000000.00, 500000000.00, 200000000.00, TRUE);
 
-
 DROP VIEW IF EXISTS Battle_Summary_View;
 CREATE VIEW Battle_Summary_View AS
 SELECT 
@@ -189,7 +184,6 @@ LEFT JOIN Battle_Participants bp ON b.Battle_ID = bp.Battle_ID
 GROUP BY b.Battle_ID, b.Battle_Name, b.Location, b.Battle_Date, 
          b.Start_Time, b.Duration_Minutes, b.Outcome, b.Saga
 ORDER BY b.Battle_Date DESC;
-
 
 -- PROCEDURE 1: READ 
 DROP PROCEDURE IF EXISTS Get_All_Battles;
@@ -281,19 +275,9 @@ BEGIN
 END $$
 DELIMITER ;
 
--- ============================================================================
--- SUMMARY
--- ============================================================================
 
-SELECT 'Database Created Successfully!' AS Status;
-
--- Show actual data
 SELECT * FROM Characters;
-
 SELECT * FROM Transformations;
-
 SELECT * FROM Battles;
-
 SELECT * FROM Battle_Participants;
-
 SELECT * FROM Battle_Summary_View;
