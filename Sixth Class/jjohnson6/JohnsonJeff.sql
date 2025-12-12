@@ -1,4 +1,4 @@
--- Dragon Ball Z Database - SIMPLIFIED VERSION
+-- Dragon Ball Z Database 
 -- Final Project - Jeff Johnson
 -- CSC 6302
 
@@ -6,11 +6,8 @@ DROP DATABASE IF EXISTS DragonBallZ;
 CREATE DATABASE DragonBallZ;
 USE DragonBallZ;
 
--- ============================================================================
--- TABLE DEFINITIONS (4 TABLES)
--- ============================================================================
 
--- Table 1: Characters (30+ rows required)
+-- Table 1: Characters 
 CREATE TABLE Characters (
     Character_ID INT AUTO_INCREMENT PRIMARY KEY,
     Character_Name VARCHAR(100) NOT NULL UNIQUE,
@@ -42,7 +39,7 @@ CREATE TABLE Battles (
     Saga VARCHAR(50)
 );
 
--- Table 4: Battle_Participants (COMPOSITE PRIMARY KEY REQUIRED)
+-- Table 4: Battle_Participants 
 CREATE TABLE Battle_Participants (
     Battle_ID INT NOT NULL,
     Character_ID INT NOT NULL,
@@ -57,11 +54,8 @@ CREATE TABLE Battle_Participants (
     FOREIGN KEY (Transformation_ID) REFERENCES Transformations(Transformation_ID) ON DELETE SET NULL ON UPDATE CASCADE
 );
 
--- ============================================================================
--- DATA INSERTS
--- ============================================================================
 
--- Insert Characters (30 rows minimum)
+-- Insert Characters
 INSERT INTO Characters (Character_Name, Race, Alignment, Birth_Date, Base_Power_Level, Is_Alive, Planet_Origin) VALUES
 ('Goku', 'Saiyan', 'Hero', '1984-04-16', 10000.00, TRUE, 'Vegeta'),
 ('Vegeta', 'Saiyan', 'Hero', '1982-01-01', 9500.00, TRUE, 'Vegeta'),
@@ -94,7 +88,7 @@ INSERT INTO Characters (Character_Name, Race, Alignment, Birth_Date, Base_Power_
 ('Bulma', 'Human', 'Hero', '1982-08-18', 5.00, TRUE, 'Earth'),
 ('Master Roshi', 'Human', 'Hero', '1850-01-01', 1000.00, TRUE, 'Earth');
 
--- Insert Transformations (12 rows)
+-- Insert Transformations 
 INSERT INTO Transformations (Transformation_Name, Power_Multiplier, Description) VALUES
 ('Super Saiyan', 50.00, 'Legendary Saiyan transformation with golden hair'),
 ('Super Saiyan 2', 100.00, 'Ascended form beyond Super Saiyan'),
@@ -109,7 +103,7 @@ INSERT INTO Transformations (Transformation_Name, Power_Multiplier, Description)
 ('Great Ape', 10.00, 'Saiyan giant ape transformation'),
 ('Majin', 2.50, 'Dark magic enhancement from Babidi');
 
--- Insert Battles (20 rows)
+-- Insert Battles 
 INSERT INTO Battles (Battle_Name, Location, Battle_Date, Start_Time, Duration_Minutes, Outcome, Saga) VALUES
 ('Goku vs Vegeta - First Encounter', 'Earth', '1989-12-13', '18:30:00', 120, 'Draw', 'Saiyan Saga'),
 ('Goku vs Frieza', 'Planet Namek', '1991-08-31', '14:00:00', 240, 'Hero Victory', 'Frieza Saga'),
@@ -132,7 +126,7 @@ INSERT INTO Battles (Battle_Name, Location, Battle_Date, Start_Time, Duration_Mi
 ('Vegeta vs Android 19', 'Earth', '1992-03-11', '11:00:00', 20, 'Hero Victory', 'Android Saga'),
 ('Goku vs Pikkon', 'Other World', '1994-08-24', '12:00:00', 35, 'Hero Victory', 'Other World Tournament');
 
--- Insert Battle_Participants (30+ rows)
+-- Insert Battle_Participants
 INSERT INTO Battle_Participants (Battle_ID, Character_ID, Transformation_ID, Power_Level_In_Battle, Damage_Dealt, Damage_Taken, Was_Winner) VALUES
 (1, 1, 7, 32000.00, 15000.00, 18000.00, FALSE),
 (1, 2, 11, 180000.00, 18000.00, 15000.00, FALSE),
@@ -171,9 +165,6 @@ INSERT INTO Battle_Participants (Battle_ID, Character_ID, Transformation_ID, Pow
 (18, 23, 3, 6000000000.00, 2000000000.00, 1500000000.00, FALSE),
 (18, 10, NULL, 2500000000.00, 1500000000.00, 2000000000.00, FALSE);
 
--- ============================================================================
--- VIEWS (1 VIEW WITH AGGREGATES REQUIRED)
--- ============================================================================
 
 DROP VIEW IF EXISTS Battle_Summary_View;
 CREATE VIEW Battle_Summary_View AS
@@ -196,11 +187,8 @@ GROUP BY b.Battle_ID, b.Battle_Name, b.Location, b.Battle_Date,
          b.Start_Time, b.Duration_Minutes, b.Outcome, b.Saga
 ORDER BY b.Battle_Date DESC;
 
--- ============================================================================
--- STORED PROCEDURES (5 REQUIRED)
--- ============================================================================
 
--- PROCEDURE 1: READ - Get All Battles with Aggregates
+-- PROCEDURE 1: READ 
 DROP PROCEDURE IF EXISTS Get_All_Battles;
 DELIMITER //
 CREATE PROCEDURE Get_All_Battles()
@@ -234,7 +222,7 @@ BEGIN
 END //
 DELIMITER ;
 
--- PROCEDURE 3: UPDATE - Update Character (with CASCADE)
+-- PROCEDURE 3: UPDATE
 DROP PROCEDURE IF EXISTS Update_Character;
 DELIMITER //
 CREATE PROCEDURE Update_Character(
@@ -255,7 +243,7 @@ BEGIN
 END //
 DELIMITER ;
 
--- PROCEDURE 4: DELETE - Delete Character (with CASCADE)
+-- PROCEDURE 4: DELETE
 DROP PROCEDURE IF EXISTS Delete_Character;
 DELIMITER //
 CREATE PROCEDURE Delete_Character(IN p_Character_ID INT)
@@ -265,7 +253,7 @@ BEGIN
 END //
 DELIMITER ;
 
--- PROCEDURE 5: CREATE - Add Battle Participant
+-- PROCEDURE 5: CREATE 
 DROP PROCEDURE IF EXISTS Add_Battle_Participant;
 DELIMITER //
 CREATE PROCEDURE Add_Battle_Participant(
