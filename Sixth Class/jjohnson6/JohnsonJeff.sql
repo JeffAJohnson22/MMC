@@ -205,3 +205,9 @@ BEGIN
     SELECT LAST_INSERT_ID() AS Character_ID;
 END $$
 DELIMITER ;
+
+SELECT * FROM Characters;
+SELECT * FROM Transformations;
+SELECT * FROM Battles;
+SELECT * FROM Battle_Participants;
+SELECT * FROM Battle_Summary_View;
