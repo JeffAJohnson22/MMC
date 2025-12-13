@@ -206,6 +206,40 @@ BEGIN
 END $$
 DELIMITER ;
 
+-- PROCEDURE 3: UPDATE
+DROP PROCEDURE IF EXISTS Update_Character;
+DELIMITER $$
+CREATE PROCEDURE Update_Character(
+    IN p_Character_ID INT,
+    IN p_Character_Name VARCHAR(100),
+    IN p_Base_Power_Level DECIMAL(15,2),
+    IN p_Is_Alive BOOLEAN
+)
+BEGIN
+    UPDATE Characters
+    SET Character_Name = p_Character_Name,
+        Base_Power_Level = p_Base_Power_Level,
+        Is_Alive = p_Is_Alive
+    WHERE Character_ID = p_Character_ID;
+    
+    SELECT ROW_COUNT() AS Rows_Affected;
+END $$
+DELIMITER ;
+
+-- PROCEDURE 4: DELETE 
+DROP PROCEDURE IF EXISTS Delete_Character;
+DELIMITER $$
+CREATE PROCEDURE Delete_Character(
+    IN p_Character_ID INT
+)
+BEGIN
+    DELETE FROM Characters
+    WHERE Character_ID = p_Character_ID;
+    
+    SELECT ROW_COUNT() AS Rows_Deleted;
+END $$
+DELIMITER ;
+
 SELECT * FROM Characters;
 SELECT * FROM Transformations;
 SELECT * FROM Battles;
