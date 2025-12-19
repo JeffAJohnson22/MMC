@@ -4,7 +4,6 @@ from tkinter import messagebox, ttk
 from BLL import CharacterBLL, BattleBLL
 from DAL import DatabaseConnection
 from config import config
-from datetime import datetime
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
