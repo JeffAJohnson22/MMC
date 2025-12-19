@@ -1,8 +1,3 @@
-"""
-Simplified Business Logic Layer (BLL)
-Contains validation logic between View and Data Access Layer
-"""
-
 from DAL import CharacterDAL, BattleDAL
 
 class CharacterBLL:
@@ -10,7 +5,6 @@ class CharacterBLL:
         self.dal = CharacterDAL(db_connection)
     
     def get_all_characters(self):
-        """Get all characters with formatting"""
         characters = self.dal.get_all_characters()
         if characters:
             for char in characters:
@@ -20,8 +14,6 @@ class CharacterBLL:
         return characters
     
     def add_character(self, name, race, alignment, power_level, is_alive, planet):
-        """Add new character with validation"""
-        # Validation
         if not name or len(name) < 2:
             return {"error": "Name must be at least 2 characters"}
         if power_level < 0:
@@ -32,7 +24,6 @@ class CharacterBLL:
         return result
     
     def delete_character(self, character_id):
-        """Delete character (cascades to Battle_Participants)"""
         return self.dal.delete_character(character_id)
 
 class BattleBLL:
@@ -40,7 +31,6 @@ class BattleBLL:
         self.dal = BattleDAL(db_connection)
     
     def get_all_battles(self):
-        """Get all battles with aggregate data formatted"""
         battles = self.dal.get_all_battles()
         if battles:
             for battle in battles:

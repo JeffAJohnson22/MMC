@@ -208,7 +208,6 @@ class DBZApplication:
             char_id = values[0]
             char_name = values[1]
             
-            # Confirm deletion
             confirm = messagebox.askyesno("Confirm Delete", 
                                          f"Are you sure you want to delete '{char_name}'?\n\nThis will also remove them from all battles.")
             
@@ -307,8 +306,8 @@ class DBZApplication:
                  bg='#4CAF50', fg='white', font=('Arial', 12), width=15).pack(side='left', padx=10)
         tk.Button(button_frame, text="Cancel", command=self.show_main_menu,
                  bg='#f44336', fg='white', font=('Arial', 12), width=15).pack(side='left', padx=10)
+    
     def show_power_chart(self):
-        """Display power level chart for top characters"""
         self.clear_window()
         
         tk.Label(self.root, text="Character Power Levels", font=('Arial', 18, 'bold'),

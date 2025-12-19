@@ -1,8 +1,3 @@
-"""
-Simplified Data Access Layer (DAL)
-Handles database interactions using stored procedures
-"""
-
 import mysql.connector
 from mysql.connector import Error
 
@@ -16,7 +11,6 @@ class DatabaseConnection:
         self.connection = None
     
     def connect(self):
-        """Establish database connection"""
         try:
             self.connection = mysql.connector.connect(
                 host=self.host,
@@ -31,12 +25,10 @@ class DatabaseConnection:
             return False
     
     def close(self):
-        """Close database connection"""
         if self.connection and self.connection.is_connected():
             self.connection.close()
     
     def execute_procedure(self, procedure_name, params=None):
-        """Execute stored procedure and return results"""
         try:
             cursor = self.connection.cursor(dictionary=True)
             if params:
@@ -60,12 +52,10 @@ class CharacterDAL:
         self.db = db_connection
     
     def add_character(self, name, race, alignment, power_level, is_alive, planet):
-        """Add new character"""
         params = (name, race, alignment, power_level, is_alive, planet)
         return self.db.execute_procedure('Add_Character', params)
     
     def delete_character(self, character_id):
-        """Delete character directly (cascades to Battle_Participants)"""
         try:
             cursor = self.db.connection.cursor()
             cursor.execute("DELETE FROM Characters WHERE Character_ID = %s", (character_id,))
@@ -78,7 +68,6 @@ class CharacterDAL:
             return False
     
     def get_all_characters(self):
-        """Get all characters"""
         try:
             cursor = self.db.connection.cursor(dictionary=True)
             cursor.execute("SELECT * FROM Characters ORDER BY Base_Power_Level DESC")
@@ -94,5 +83,4 @@ class BattleDAL:
         self.db = db_connection
     
     def get_all_battles(self):
-        """Get all battles with aggregate data"""
         return self.db.execute_procedure('Get_All_Battles')
