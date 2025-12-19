@@ -23,6 +23,14 @@ class CharacterBLL:
                                        power_level, is_alive, planet)
         return result
     
+    def update_character(self, character_id, name, power_level, is_alive):
+        if not name or len(name) < 2:
+            return {"error": "Name must be at least 2 characters"}
+        if power_level < 0:
+            return {"error": "Power level cannot be negative"}
+        
+        return self.dal.update_character(character_id, name, power_level, is_alive)
+    
     def delete_character(self, character_id):
         return self.dal.delete_character(character_id)
 

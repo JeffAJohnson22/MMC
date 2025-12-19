@@ -222,17 +222,30 @@ class DBZApplication:
                 except Exception as e:
                     messagebox.showerror("Error", f"Failed to delete character: {str(e)}")
         
+        # Update function
+        def update_selected():
+            selected = tree.selection()
+            if not selected:
+                messagebox.showwarning("No Selection", "Please select a character to update")
+                return
+            
+            item = selected[0]
+            values = tree.item(item, 'values')
+            char_id = values[0]
+            self.update_character_form(char_id)
+        
         # Button frame
         button_frame = tk.Frame(self.root, bg='#FF8C00')
         button_frame.pack(pady=10)
         
+        tk.Button(button_frame, text="Update Selected", command=update_selected,
+                 bg='#2196F3', fg='white', font=('Arial', 12), width=15).pack(side='left', padx=5)
         tk.Button(button_frame, text="Delete Selected", command=delete_selected,
                  bg='#FF5722', fg='white', font=('Arial', 12), width=15).pack(side='left', padx=5)
         tk.Button(button_frame, text="Back to Menu", command=self.show_main_menu,
                  bg='#f44336', fg='white', font=('Arial', 12), width=15).pack(side='left', padx=5)
     
     def add_character_form(self):
-        """Display add character form"""
         self.clear_window()
         
         tk.Label(self.root, text="Add New Character", font=('Arial', 18, 'bold'),
@@ -307,6 +320,76 @@ class DBZApplication:
         tk.Button(button_frame, text="Cancel", command=self.show_main_menu,
                  bg='#f44336', fg='white', font=('Arial', 12), width=15).pack(side='left', padx=10)
     
+    def update_character_form(self, character_id=None):
+        if not character_id:
+            messagebox.showinfo("Info", "Please select a character from the Characters list")
+            self.view_characters()
+            return
+        
+        self.clear_window()
+        
+        # Get character data
+        characters = self.character_bll.get_all_characters()
+        existing_char = next((c for c in characters if str(c.get('Character_ID')) == str(character_id)), None)
+        
+        if not existing_char:
+            messagebox.showerror("Error", "Character not found")
+            self.show_main_menu()
+            return
+        
+        tk.Label(self.root, text=f"Update: {existing_char['Character_Name']}", 
+                font=('Arial', 18, 'bold'), bg='#FF8C00', fg='white').pack(pady=20)
+        
+        form_frame = tk.Frame(self.root, bg='#FF8C00')
+        form_frame.pack(pady=20)
+        
+        # Name
+        tk.Label(form_frame, text="Name:", bg='#FF8C00', fg='white', font=('Arial', 12)).grid(
+            row=0, column=0, sticky='e', padx=10, pady=5)
+        name_entry = tk.Entry(form_frame, font=('Arial', 12), width=30)
+        name_entry.grid(row=0, column=1, pady=5)
+        name_entry.insert(0, existing_char['Character_Name'])
+        
+        # Power Level
+        tk.Label(form_frame, text="Base Power Level:", bg='#FF8C00', fg='white', font=('Arial', 12)).grid(
+            row=1, column=0, sticky='e', padx=10, pady=5)
+        power_entry = tk.Entry(form_frame, font=('Arial', 12), width=30)
+        power_entry.grid(row=1, column=1, pady=5)
+        power_entry.insert(0, str(float(existing_char['Base_Power_Level'])))
+        
+        # Is Alive
+        tk.Label(form_frame, text="Is Alive:", bg='#FF8C00', fg='white', font=('Arial', 12)).grid(
+            row=2, column=0, sticky='e', padx=10, pady=5)
+        alive_var = tk.BooleanVar(value=existing_char['Is_Alive'])
+        tk.Checkbutton(form_frame, variable=alive_var, bg='#FF8C00', font=('Arial', 12)).grid(
+            row=2, column=1, sticky='w', pady=5)
+        
+        def submit():
+            try:
+                name = name_entry.get()
+                power_level = float(power_entry.get())
+                is_alive = alive_var.get()
+                
+                result = self.character_bll.update_character(character_id, name, power_level, is_alive)
+                
+                if result and 'error' in str(result):
+                    messagebox.showerror("Error", str(result))
+                else:
+                    messagebox.showinfo("Success", f"Character '{name}' updated successfully!")
+                    self.view_characters()
+            except ValueError:
+                messagebox.showerror("Error", "Please enter a valid power level number")
+            except Exception as e:
+                messagebox.showerror("Error", f"Failed to update character: {str(e)}")
+        
+        button_frame = tk.Frame(self.root, bg='#FF8C00')
+        button_frame.pack(pady=20)
+        
+        tk.Button(button_frame, text="Update Character", command=submit,
+                 bg='#2196F3', fg='white', font=('Arial', 12), width=15).pack(side='left', padx=10)
+        tk.Button(button_frame, text="Cancel", command=self.view_characters,
+                 bg='#f44336', fg='white', font=('Arial', 12), width=15).pack(side='left', padx=10)
+    
     def show_power_chart(self):
         self.clear_window()
         
@@ -326,7 +409,7 @@ class DBZApplication:
         
         # Create figure
         fig = Figure(figsize=(10, 6), facecolor='#FF8C00')
-        ax = fig.add_subplot(111)
+        val = fig.add_subplot(111)
         
         # Extract data
         names = [char['Character_Name'] for char in top_characters]
@@ -336,16 +419,16 @@ class DBZApplication:
         colors = ["#FF0000" if char['Alignment'] == 'Villain' else '#4ECDC4' if char['Alignment'] == 'Hero' else "#00FD22" 
                   for char in top_characters]
         
-        bars = ax.barh(names, powers, color=colors)
+        val.barh(names, powers, color=colors)
         
         # Customize chart
-        ax.set_xlabel('Base Power Level', fontsize=12, fontweight='bold')
-        ax.set_title('Top 15 Characters by Power Level', fontsize=14, fontweight='bold')
-        ax.set_facecolor('#FFF5E6')
-        ax.grid(axis='x', alpha=0.3)
+        val.set_xlabel('Base Power Level', fontsize=12, fontweight='bold')
+        val.set_title('Top 15 Characters by Power Level', fontsize=14, fontweight='bold')
+        val.set_facecolor('#FFF5E6')
+        val.grid(axis='x', alpha=0.3)
         
         # Format x-axis with commas
-        ax.xaxis.set_major_formatter(plt.FuncFormatter(lambda x, p: f'{int(x):,}'))
+        val.xaxis.set_major_formatter(plt.FuncFormatter(lambda x, p: f'{int(x):,}'))
         
         # Add legend
         from matplotlib.patches import Patch
@@ -354,7 +437,7 @@ class DBZApplication:
             Patch(facecolor='#FF0000', label='Villain'),
             Patch(facecolor='#00FD22', label='Neutral')
         ]
-        ax.legend(handles=legend_elements, loc='lower right')
+        val.legend(handles=legend_elements, loc='lower right')
         
         fig.tight_layout()
         

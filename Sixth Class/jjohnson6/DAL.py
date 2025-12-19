@@ -55,28 +55,18 @@ class CharacterDAL:
         params = (name, race, alignment, power_level, is_alive, planet)
         return self.db.execute_procedure('Add_Character', params)
     
+    def update_character(self, character_id, name, power_level, is_alive):
+        params = (character_id, name, power_level, is_alive)
+        result = self.db.execute_procedure('Update_Character', params)
+        return result is not None
+    
     def delete_character(self, character_id):
-        try:
-            cursor = self.db.connection.cursor()
-            cursor.execute("DELETE FROM Characters WHERE Character_ID = %s", (character_id,))
-            self.db.connection.commit()
-            rows_deleted = cursor.rowcount
-            cursor.close()
-            return rows_deleted > 0
-        except Error as e:
-            print(f"Error deleting character: {e}")
-            return False
+        params = (character_id)
+        result = self.db.execute_procedure('Delete_Character', params)
+        return result is not None
     
     def get_all_characters(self):
-        try:
-            cursor = self.db.connection.cursor(dictionary=True)
-            cursor.execute("SELECT * FROM Characters ORDER BY Base_Power_Level DESC")
-            results = cursor.fetchall()
-            cursor.close()
-            return results
-        except Error as e:
-            print(f"Error getting characters: {e}")
-            return []
+        return self.db.execute_procedure('Get_All_Characters') or []
 
 class BattleDAL:
     def __init__(self, db_connection):
