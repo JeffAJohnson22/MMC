@@ -61,7 +61,7 @@ class CharacterDAL:
         return result is not None
     
     def delete_character(self, character_id):
-        params = (character_id)
+        params = (character_id,)
         result = self.db.execute_procedure('Delete_Character', params)
         return result is not None
     

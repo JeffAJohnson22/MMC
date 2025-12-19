@@ -54,6 +54,13 @@ When the application starts, you'll see the login screen:
 2. **Password**: Enter your MySQL password
 3. Click **Login**
 
+## Advanced Feature: Power Level Visualization
+
+To access this feature:
+1. Log in to the application
+2. Click "Power Level Chart" from the main menu
+3. View the bar chart showing character comparisons
+
 **Technologies Used**:
 
 - Python 3.11
