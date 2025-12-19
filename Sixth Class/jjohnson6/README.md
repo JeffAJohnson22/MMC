@@ -1,8 +1,9 @@
-# Dragon Ball Z Database Management System
+# Dragon Ball Z Database 
 
 ## Installation & Setup
 
 ### Prerequisites
+
 - Python 3.8 or higher
 - MySQL Server 8.0 or higher
 - MySQL Workbench (recommended for database setup)
@@ -57,6 +58,7 @@ When the application starts, you'll see the login screen:
 ## Advanced Feature: Power Level Visualization
 
 To access this feature:
+
 1. Log in to the application
 2. Click "Power Level Chart" from the main menu
 3. View the bar chart showing character comparisons
@@ -68,4 +70,3 @@ To access this feature:
 - tkinter (GUI)
 - matplotlib (Data Visualization)
 - mysql-connector-python (Database Connectivity)
-

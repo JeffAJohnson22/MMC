@@ -1,6 +1,3 @@
--- Dragon Ball Z Database 
--- CSC 6302
-
 DROP DATABASE IF EXISTS DragonBallZ;
 CREATE DATABASE DragonBallZ;
 USE DragonBallZ;
@@ -182,7 +179,7 @@ BEGIN
 END $$
 DELIMITER ;
 
--- PROCEDURE: READ - Get All Characters
+-- PROCEDURE: READ 
 DROP PROCEDURE IF EXISTS Get_All_Characters;
 DELIMITER $$
 CREATE PROCEDURE Get_All_Characters()

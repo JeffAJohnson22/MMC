@@ -1,7 +1,3 @@
-"""
-Simplified View Layer (GUI)
-Dragon Ball Z Database Management System
-"""
 
 import tkinter as tk
 from tkinter import messagebox, ttk
@@ -49,7 +45,6 @@ class DBZApplication:
                  font=('Arial', 12, 'bold'), width=20).pack(pady=20)
     
     def login(self):
-        """Attempt database connection"""
         username = self.username_entry.get()
         password = self.password_entry.get()
         
@@ -70,7 +65,6 @@ class DBZApplication:
             messagebox.showerror("Error", "Failed to connect to database")
     
     def show_main_menu(self):
-        """Display main menu"""
         self.clear_window()
         
         tk.Label(self.root, text="Main Menu", font=('Arial', 20, 'bold'),
