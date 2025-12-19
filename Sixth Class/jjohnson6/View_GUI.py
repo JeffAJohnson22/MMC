@@ -31,6 +31,16 @@ class DBZApplication:
         tk.Label(frame, text="Dragon Ball Z Database", font=('Arial', 24, 'bold'), 
                 bg='#FF8C00', fg='white').pack(pady=20)
         
+        tk.Label(frame, text="Host:", bg='#FF8C00', fg='white', font=('Arial', 12)).pack()
+        self.host_entry = tk.Entry(frame, font=('Arial', 12), width=25)
+        self.host_entry.pack(pady=5)
+        self.host_entry.insert(0, config.get('host', 'localhost'))
+        
+        tk.Label(frame, text="Port:", bg='#FF8C00', fg='white', font=('Arial', 12)).pack()
+        self.port_entry = tk.Entry(frame, font=('Arial', 12), width=25)
+        self.port_entry.pack(pady=5)
+        self.port_entry.insert(0, str(config.get('port', 3306)))
+        
         tk.Label(frame, text="Username:", bg='#FF8C00', fg='white', font=('Arial', 12)).pack()
         self.username_entry = tk.Entry(frame, font=('Arial', 12), width=25)
         self.username_entry.pack(pady=5)
@@ -45,24 +55,47 @@ class DBZApplication:
                  font=('Arial', 12, 'bold'), width=20).pack(pady=20)
     
     def login(self):
-        username = self.username_entry.get()
+        host = self.host_entry.get().strip()
+        port_str = self.port_entry.get().strip()
+        username = self.username_entry.get().strip()
         password = self.password_entry.get()
         
+        # Validate inputs
+        if not host:
+            messagebox.showerror("Error", "Host cannot be empty")
+            return
+        if not username:
+            messagebox.showerror("Error", "Username cannot be empty")
+            return
+        
+        try:
+            port = int(port_str)
+        except ValueError:
+            messagebox.showerror("Error", "Port must be a number")
+            return
+        
         self.db = DatabaseConnection(
-            host=config.get('host', 'localhost'),
+            host=host,
             username=username,
             password=password,
             database=config.get('database', 'DragonBallZ'),
-            port=config.get('port', 3306)
+            port=port
         )
         
         if self.db.connect():
             self.character_bll = CharacterBLL(self.db)
             self.battle_bll = BattleBLL(self.db)
-            messagebox.showinfo("Success", "Connected to Database!")
+            messagebox.showinfo("Success", "Successfully connected to database!")
             self.show_main_menu()
         else:
-            messagebox.showerror("Error", "Failed to connect to database")
+            messagebox.showerror("Connection Failed", 
+                               f"Failed to connect to database.\n\n"
+                               f"Please check:\n"
+                               f"- Host: {host}\n"
+                               f"- Port: {port}\n"
+                               f"- Username: {username}\n"
+                               f"- Database exists\n"
+                               f"- MySQL server is running")
     
     def show_main_menu(self):
         self.clear_window()
@@ -124,18 +157,23 @@ class DBZApplication:
         scrollbar.pack(side='right', fill='y')
         
         # Get data
-        battles = self.battle_bll.get_all_battles()
-        if battles:
-            for battle in battles:
-                tree.insert('', 'end', values=(
-                    battle.get('Battle_Name', ''),
-                    battle.get('Battle_Date', ''),
-                    battle.get('Location', ''),
-                    battle.get('Outcome', ''),
-                    battle.get('Total_Fighters', 0),
-                    battle.get('Avg_Power_Display', 'N/A'),
-                    battle.get('Max_Power_Display', 'N/A')
-                ))
+        try:
+            battles = self.battle_bll.get_all_battles()
+            if battles:
+                for battle in battles:
+                    tree.insert('', 'end', values=(
+                        battle.get('Battle_Name', ''),
+                        battle.get('Battle_Date', ''),
+                        battle.get('Location', ''),
+                        battle.get('Outcome', ''),
+                        battle.get('Total_Fighters', 0),
+                        battle.get('Avg_Power_Display', 'N/A'),
+                        battle.get('Max_Power_Display', 'N/A')
+                    ))
+            else:
+                messagebox.showinfo("No Data", "No battles found in the database.")
+        except Exception as e:
+            messagebox.showerror("Error", f"Failed to retrieve battle data:\n{str(e)}")
         
         tk.Button(self.root, text="Back to Menu", command=self.show_main_menu,
                  bg='#f44336', fg='white', font=('Arial', 12), width=15).pack(pady=10)
@@ -173,18 +211,23 @@ class DBZApplication:
         scrollbar.pack(side='right', fill='y')
         
         # Get data
-        characters = self.character_bll.get_all_characters()
-        if characters:
-            for char in characters:
-                tree.insert('', 'end', values=(
-                    char.get('Character_ID', ''),
-                    char.get('Character_Name', ''),
-                    char.get('Race', ''),
-                    char.get('Alignment', ''),
-                    char.get('Base_Power_Level_Display', ''),
-                    char.get('Status', ''),
-                    char.get('Planet_Origin', '')
-                ))
+        try:
+            characters = self.character_bll.get_all_characters()
+            if characters:
+                for char in characters:
+                    tree.insert('', 'end', values=(
+                        char.get('Character_ID', ''),
+                        char.get('Character_Name', ''),
+                        char.get('Race', ''),
+                        char.get('Alignment', ''),
+                        char.get('Base_Power_Level_Display', 'N/A'),
+                        char.get('Status', ''),
+                        char.get('Planet_Origin', '')
+                    ))
+            else:
+                messagebox.showinfo("No Data", "No characters found in the database.")
+        except Exception as e:
+            messagebox.showerror("Error", f"Failed to retrieve character data:\n{str(e)}")
         
         # Delete function
         def delete_selected():
@@ -387,58 +430,64 @@ class DBZApplication:
         tk.Label(self.root, text="Character Power Levels", font=('Arial', 18, 'bold'),
                 bg='#FF8C00', fg='white').pack(pady=10)
         
-        # Get characters data
-        characters = self.character_bll.get_all_characters()
-        
-        if not characters:
-            messagebox.showinfo("No Data", "No characters found in database")
+        try:
+            # Get characters data
+            characters = self.character_bll.get_all_characters()
+            
+            if not characters:
+                messagebox.showinfo("No Data", "No characters found in database")
+                self.show_main_menu()
+                return
+            
+            # Get top 15 characters by power level
+            top_characters = sorted(characters, key=lambda x: float(x.get('Base_Power_Level', 0)), reverse=True)[:15]
+            
+            # Create figure
+            fig = Figure(figsize=(10, 6), facecolor='#FF8C00')
+            val = fig.add_subplot(111)
+            
+            # Extract data
+            names = [char['Character_Name'] for char in top_characters]
+            powers = [float(char['Base_Power_Level']) for char in top_characters]
+            
+            # Create bar chart
+            colors = ["#FF0000" if char['Alignment'] == 'Villain' else '#4ECDC4' if char['Alignment'] == 'Hero' else "#00FD22" 
+                      for char in top_characters]
+            
+            val.barh(names, powers, color=colors)
+            
+            # Customize chart
+            val.set_xlabel('Base Power Level', fontsize=12, fontweight='bold')
+            val.set_title('Top 15 Characters by Power Level', fontsize=14, fontweight='bold')
+            val.set_facecolor('#FFF5E6')
+            val.grid(axis='x', alpha=0.3)
+            
+            # Format x-axis with commas
+            val.xaxis.set_major_formatter(plt.FuncFormatter(lambda x, p: f'{int(x):,}'))
+            
+            # Add legend
+            from matplotlib.patches import Patch
+            legend_elements = [
+                Patch(facecolor='#4ECDC4', label='Hero'),
+                Patch(facecolor='#FF0000', label='Villain'),
+                Patch(facecolor='#00FD22', label='Neutral')
+            ]
+            val.legend(handles=legend_elements, loc='lower right')
+            
+            fig.tight_layout()
+            
+            # Embed chart in tkinter
+            chart_frame = tk.Frame(self.root)
+            chart_frame.pack(fill='both', expand=True, padx=20, pady=10)
+            
+            canvas = FigureCanvasTkAgg(fig, master=chart_frame)
+            canvas.draw()
+            canvas.get_tk_widget().pack(fill='both', expand=True)
+            
+        except Exception as e:
+            messagebox.showerror("Error", f"Failed to generate power chart:\\n{str(e)}")
             self.show_main_menu()
             return
-        
-        # Get top 15 characters by power level
-        top_characters = sorted(characters, key=lambda x: float(x.get('Base_Power_Level', 0)), reverse=True)[:15]
-        
-        # Create figure
-        fig = Figure(figsize=(10, 6), facecolor='#FF8C00')
-        val = fig.add_subplot(111)
-        
-        # Extract data
-        names = [char['Character_Name'] for char in top_characters]
-        powers = [float(char['Base_Power_Level']) for char in top_characters]
-        
-        # Create bar chart
-        colors = ["#FF0000" if char['Alignment'] == 'Villain' else '#4ECDC4' if char['Alignment'] == 'Hero' else "#00FD22" 
-                  for char in top_characters]
-        
-        val.barh(names, powers, color=colors)
-        
-        # Customize chart
-        val.set_xlabel('Base Power Level', fontsize=12, fontweight='bold')
-        val.set_title('Top 15 Characters by Power Level', fontsize=14, fontweight='bold')
-        val.set_facecolor('#FFF5E6')
-        val.grid(axis='x', alpha=0.3)
-        
-        # Format x-axis with commas
-        val.xaxis.set_major_formatter(plt.FuncFormatter(lambda x, p: f'{int(x):,}'))
-        
-        # Add legend
-        from matplotlib.patches import Patch
-        legend_elements = [
-            Patch(facecolor='#4ECDC4', label='Hero'),
-            Patch(facecolor='#FF0000', label='Villain'),
-            Patch(facecolor='#00FD22', label='Neutral')
-        ]
-        val.legend(handles=legend_elements, loc='lower right')
-        
-        fig.tight_layout()
-        
-        # Embed chart in tkinter
-        chart_frame = tk.Frame(self.root)
-        chart_frame.pack(fill='both', expand=True, padx=20, pady=10)
-        
-        canvas = FigureCanvasTkAgg(fig, master=chart_frame)
-        canvas.draw()
-        canvas.get_tk_widget().pack(fill='both', expand=True)
         
         tk.Button(self.root, text="Back to Menu", command=self.show_main_menu,
                  bg='#f44336', fg='white', font=('Arial', 12), width=15).pack(pady=10)

@@ -57,11 +57,16 @@ When the application starts, you'll see the login screen:
 
 ## Advanced Feature: Power Level Visualization
 
-To access this feature:
+This feature displays a bar chart of the top 10 characters by power level. Heroes show in green, villains in red, and neutral characters in gray.
 
+**How to use:**
 1. Log in to the application
 2. Click "Power Level Chart" from the main menu
-3. View the bar chart showing character comparisons
+3. View the chart and click "Back to Menu" to return
+
+**Sources:**
+- [Matplotlib Documentation](https://matplotlib.org/stable/index.html)
+- [Embedding Matplotlib in Tkinter](https://matplotlib.org/stable/gallery/user_interfaces/embedding_in_tk_sgskip.html)
 
 **Technologies Used**:
 
