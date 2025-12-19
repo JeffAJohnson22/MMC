@@ -16,7 +16,7 @@ from matplotlib.figure import Figure
 class DBZApplication:
     def __init__(self, root):
         self.root = root
-        self.root.title("Dragon Ball Z Database Manager")
+        self.root.title("Dragon Ball Z Database")
         self.root.geometry("900x900")
         self.root.configure(bg='#FF8C00')
         
@@ -27,7 +27,6 @@ class DBZApplication:
         self.show_login()
     
     def show_login(self):
-        """Display login screen"""
         self.clear_window()
         
         frame = tk.Frame(self.root, bg='#FF8C00')
@@ -94,7 +93,6 @@ class DBZApplication:
                      width=20, height=2).pack(pady=10)
     
     def view_battles(self):
-        """Display all battles with aggregate statistics"""
         self.clear_window()
         
         tk.Label(self.root, text="All Battles (with Statistics)", font=('Arial', 18, 'bold'),
@@ -149,7 +147,6 @@ class DBZApplication:
                  bg='#f44336', fg='white', font=('Arial', 12), width=15).pack(pady=10)
     
     def view_characters(self):
-        """Display all characters"""
         self.clear_window()
         
         tk.Label(self.root, text="All Characters", font=('Arial', 18, 'bold'),
@@ -453,7 +450,6 @@ class DBZApplication:
                  bg='#f44336', fg='white', font=('Arial', 12), width=15).pack(pady=10)
     
     def logout(self):
-        """Close connection and return to login"""
         if self.db:
             self.db.close()
         self.db = None
