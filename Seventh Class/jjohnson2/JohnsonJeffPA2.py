@@ -1,5 +1,7 @@
 # Jeff Johnson PA2
 
+# sklearn is a ready-made machine learning toolkit that we are importing to uses its methods.
+
 from sklearn.feature_extraction.text import CountVectorizer
 
 from sklearn.naive_bayes import MultinomialNB
@@ -9,7 +11,7 @@ def statistical_classifier(train_messages, train_labels, test_message):
     # CountVectorizer counts how many times each word appears in each sentence puts it in a matrix of integers.
     vectorizer = CountVectorizer()
 
-    # Learns what words exist in all your training messages and builds a dictionary of words and their frequencies.
+    # Learns what words exist in all mys training messages and builds a dictionary of words and their frequencies.
     X_train = vectorizer.fit_transform(train_messages)
 
     # An empty model that will be filled with the training data.
@@ -53,17 +55,17 @@ def main():
         "not spam",
         "not spam",
     ]
+    
+    user_message = input("Enter your message:")
 
-    result = statistical_classifier(train_messages, train_labels, "Dragon Ball Z is the best anime of all time.")
+    result = statistical_classifier(train_messages, train_labels, user_message)
 
     print(f"The message is classified as: {result}")
     
 main()
 
-# Jeff Johnson PA2
-
 # 1: What’s better, what’s more scalable, why?
-# Simply because I can pass in as much data as I need/want makes this better more data in the sense that I have full sentnences going in.
+# Simply because I can pass in as much data as I need/want makes this better more data in the sense that I have full sentences going in.
 # The training data is scalable because I can add more data as I need/want.
 
 # 2: Explain what each library is used for.
