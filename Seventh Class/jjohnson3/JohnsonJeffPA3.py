@@ -1,7 +1,7 @@
 """
 Project #3: The Smart Navigator (A* vs. BFS)
-Name: [Your Name]
-Date: [Date]
+Name: Jeff Johnson
+Date: 02/02/2026
 """
 
 import heapq
@@ -22,8 +22,9 @@ def manhattan_distance(a, b):
     TASK: Implement Manhattan Distance h(n)
     Formula: |x1 - x2| + |y1 - y2|
     """
-    # TODO: Your code here
-    return 0
+    if a == b:
+        return 0
+    return abs(a[0] - b[0]) + abs(a[1] - b[1])
 
 def breadth_first_search(grid, start, goal):
     """
@@ -32,7 +33,25 @@ def breadth_first_search(grid, start, goal):
     - Return the total count of nodes visited.
     """
     nodes_visited = 0
-    # TODO: Your code here
+    frontier = deque([start])
+    visited = set()
+    
+    while frontier:
+        node = frontier.popleft()
+        
+        if node in visited:
+            continue
+        
+        visited.add(node)
+        nodes_visited += 1
+        
+        if node == goal:
+            return nodes_visited
+        
+        for neighbor in get_neighbors(node, grid):
+            if neighbor not in visited:
+                frontier.append(neighbor)
+    
     return nodes_visited
 
 def a_star_search(grid, start, goal):
@@ -43,7 +62,33 @@ def a_star_search(grid, start, goal):
     - Return the total count of nodes visited.
     """
     nodes_visited = 0
-    # TODO: Your code here
+    manhattan_result = manhattan_distance(start, goal)
+    priority = 0 + manhattan_result + (manhattan_result * 0.001)
+    frontier = [(priority, start)]
+    visited = set()
+    value = {start: 0}
+    
+    while frontier:
+        _, node = heapq.heappop(frontier)
+        
+        if node in visited:
+            continue
+        
+        visited.add(node)
+        nodes_visited += 1
+        
+        if node == goal:
+            return nodes_visited
+        
+        for neighbor in get_neighbors(node, grid):
+            new_hotness = value[node] + 1
+            
+            if neighbor not in value or new_hotness < value[neighbor]:
+                value[neighbor] = new_hotness
+                mh_result = manhattan_distance(neighbor, goal)
+                priority = new_hotness + mh_result + (mh_result * 0.001)
+                heapq.heappush(frontier, (priority, neighbor))
+    
     return nodes_visited
 
 # ==========================================================
