@@ -12,7 +12,7 @@ logging.getLogger("transformers").setLevel(logging.ERROR)
 chroma_client = chromadb.PersistentClient(path="./database")
 model = SentenceTransformer("all-MiniLM-L6-v2")
 
-# using get_or_create_collection so new collections arent made every time
+# so new collections arent made every time
 collection = chroma_client.get_or_create_collection(name="my_collection")
 
 # Read all text files for this directory
