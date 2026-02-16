@@ -60,7 +60,6 @@ def add_missing_values(patient_data, missing_fraction=0.05):
 def main():
     raw_patient_data = generate_patient_data()
     raw_patient_data.to_csv('patient_health_data.csv', index=False)
-    print(f"Dataset created and saved to: {os.getcwd()}/patient_health_data.csv")
 
     # Add missing values to simulate messy real-world data
     data_with_gaps = add_missing_values(raw_patient_data)
@@ -70,7 +69,6 @@ def main():
         for value in data_with_gaps[column]:
             if pd.isna(value):
                 count += 1
-    print(f"Added {count} missing values to simulate real-world data")
 
     
     # Imputation is going to fill up the missing values with a median
@@ -91,52 +89,52 @@ def main():
     cleaned_patient_data.to_csv('patient_health_data_clean.csv', index=False)
     
     # Prepare data for modeling
-    X = cleaned_patient_data[['age', 'bmi', 'blood_sugar_level']].values
-    y = cleaned_patient_data['health_risk_score'].values
+    patient_features = cleaned_patient_data[['age', 'bmi', 'blood_sugar_level']].values
+    health_risk_scores = cleaned_patient_data['health_risk_score'].values
     
     # Split up the data into training and testing sets (80/20 split)
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    features_train, features_test, risk_scores_train, risk_scores_test = train_test_split(patient_features, health_risk_scores, test_size=0.2, random_state=42)
     
     # Make a new scaler so the 3 input features are good for the model
     feature_scaler = StandardScaler()
-    X_train_scaled = feature_scaler.fit_transform(X_train)
-    X_test_scaled = feature_scaler.transform(X_test)
+    features_train_scaled = feature_scaler.fit_transform(features_train)
+    features_test_scaled = feature_scaler.transform(features_test)
     
-    X_train_underfit = []
-    for row in X_train_scaled:
-        X_train_underfit.append([row[0]])
-    X_train_underfit = np.array(X_train_underfit)
+    age_train = []
+    for row in features_train_scaled:
+        age_train.append([row[0]])
+    age_train = np.array(age_train)
     
-    X_test_underfit = []
-    for row in X_test_scaled:
-        X_test_underfit.append([row[0]])
-    X_test_underfit = np.array(X_test_underfit)
+    age_test = []
+    for row in features_test_scaled:
+        age_test.append([row[0]])
+    age_test = np.array(age_test)
     
     underfit_model = LinearRegression()
-    underfit_model.fit(X_train_underfit, y_train)
-    y_pred_underfit = underfit_model.predict(X_test_underfit)
+    underfit_model.fit(age_train, risk_scores_train)
+    predictions_underfit = underfit_model.predict(age_test)
     
-    mse_underfit = mean_squared_error(y_test, y_pred_underfit)
-    r2_underfit = r2_score(y_test, y_pred_underfit)
+    mse_underfit = mean_squared_error(risk_scores_test, predictions_underfit)
+    r2_underfit = r2_score(risk_scores_test, predictions_underfit)
 
     # Overfit (High Variance): A model using PolynomialFeatures with a degree of 10 or higher.
     poly = PolynomialFeatures(degree=10)
-    X_train_overfit = poly.fit_transform(X_train_scaled)
-    X_test_overfit = poly.transform(X_test_scaled)
+    features_train_polynomial = poly.fit_transform(features_train_scaled)
+    features_test_polynomial = poly.transform(features_test_scaled)
     
     overfit_model = LinearRegression()
-    overfit_model.fit(X_train_overfit, y_train)
-    y_pred_overfit = overfit_model.predict(X_test_overfit)
+    overfit_model.fit(features_train_polynomial, risk_scores_train)
+    predictions_overfit = overfit_model.predict(features_test_polynomial)
     
-    mse_overfit = mean_squared_error(y_test, y_pred_overfit)
-    r2_overfit = r2_score(y_test, y_pred_overfit)
+    mse_overfit = mean_squared_error(risk_scores_test, predictions_overfit)
+    r2_overfit = r2_score(risk_scores_test, predictions_overfit)
     
     optimal_model = LinearRegression()
-    optimal_model.fit(X_train_scaled, y_train)
-    y_pred_optimal = optimal_model.predict(X_test_scaled)
+    optimal_model.fit(features_train_scaled, risk_scores_train)
+    predictions_optimal = optimal_model.predict(features_test_scaled)
     
-    mse_optimal = mean_squared_error(y_test, y_pred_optimal)
-    r2_optimal = r2_score(y_test, y_pred_optimal)
+    mse_optimal = mean_squared_error(risk_scores_test, predictions_optimal)
+    r2_optimal = r2_score(risk_scores_test, predictions_optimal)
     
     print("\n" + "="*30)
     print("Model Performance Metrics")
@@ -155,11 +153,11 @@ def main():
     
     # Train a Logistic Regression model for risk probability
     # Create binary labels for logistic regression
-    median_risk = np.median(y)
-    y_binary_train = (y_train > median_risk).astype(int)
+    median_risk = np.median(health_risk_scores)
+    risk_binary_train = (risk_scores_train > median_risk).astype(int)
     
     logistic_model = LogisticRegression(random_state=42, max_iter=1000)
-    logistic_model.fit(X_train_scaled, y_binary_train)
+    logistic_model.fit(features_train_scaled, risk_binary_train)
     
     with open('logistic_model.pkl', 'wb') as f:
         pickle.dump(logistic_model, f)
@@ -186,20 +184,20 @@ def main():
                 continue
             
             # Preprocess new patient data
-            new_patient = np.array([[age, bmi, blood_sugar]])
-            new_patient_scaled = feature_scaler.transform(new_patient)
+            patient_input = np.array([[age, bmi, blood_sugar]])
+            patient_input_scaled = feature_scaler.transform(patient_input)
             
             # Get predictions from optimal model
-            health_risk_raw = optimal_model.predict(new_patient_scaled)[0]
+            predicted_risk_raw = optimal_model.predict(patient_input_scaled)[0]
             
             # Normalize health_risk_score to 0-100 scale using fixed clinical boundaries
             # Clinical scale: 50 = minimum risk, 200 = maximum risk
-            clinical_min = 50
-            clinical_max = 200
-            health_risk_normalized = max(0, min(100, ((health_risk_raw - clinical_min) / (clinical_max - clinical_min)) * 100))
+            minimum_risk_threshold = 50
+            maximum_risk_threshold = 200
+            health_risk_normalized = max(0, min(100, ((predicted_risk_raw - minimum_risk_threshold) / (maximum_risk_threshold - minimum_risk_threshold)) * 100))
             
             # Get risk probability from logistic model
-            risk_probability = logistic_model.predict_proba(new_patient_scaled)[0][1] * 100
+            risk_probability = logistic_model.predict_proba(patient_input_scaled)[0][1] * 100
             
             # Determine diagnosis based on 60-point threshold
             diagnosis = "is at risk" if health_risk_normalized >= 60 else "is healthy"
