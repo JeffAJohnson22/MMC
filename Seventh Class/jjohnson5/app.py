@@ -19,9 +19,10 @@ def generate_patient_data():
         blood_sugar_level = random.randint(50, 315)
 
         # Risk score is built from all three features
-        age_points = age // 2
-        bmi_points = bmi * 2
-        sugar_points = blood_sugar_level // 7
+        age_points = age // (3 + int(age // 10))
+        bmi_points = bmi * 2 + int(bmi // 10)
+        # Divisor grows with age + bmi, so young low-bmi patients with high sugar score higher
+        sugar_points = blood_sugar_level // (3 + int((age + bmi) // 10))
 
         health_risk_score = round(age_points + bmi_points + sugar_points)
 
@@ -53,7 +54,7 @@ def clean_data(raw_data):
     data_imputed = pd.DataFrame(imputer.fit_transform(data_with_gaps), columns=column_names)
 
     # Save and return the imputed data at raw scale so train_models handles its own scaling
-    data_imputed.to_csv('patient_health_data_clean.csv', index=False)
+    data_imputed.to_csv('og_patient_data_cleaned.csv', index=False)
     return data_imputed
 
 # Trains 3 models to show bias-variance tradeoff, plus a logistic model for classification
@@ -219,15 +220,15 @@ def the_interface(feature_scaler, optimal_model, logistic_model, risk_min, risk_
 
 def main():
     # Load or generate raw patient data
-    if os.path.exists('patient_health_data.csv'):
-        raw_patient_data = pd.read_csv('patient_health_data.csv')
+    if os.path.exists('original_patient_data.csv'):
+        raw_patient_data = pd.read_csv('original_patient_data.csv')
     else:
         raw_patient_data = generate_patient_data()
-        raw_patient_data.to_csv('patient_health_data.csv', index=False)
+        raw_patient_data.to_csv('original_patient_data.csv', index=False)
 
     # Load or clean the data
-    if os.path.exists('patient_health_data_clean.csv'):
-        data_imputed = pd.read_csv('patient_health_data_clean.csv')
+    if os.path.exists('og_patient_data_cleaned.csv'):
+        data_imputed = pd.read_csv('og_patient_data_cleaned.csv')
     else:
         data_imputed = clean_data(raw_patient_data)
 
