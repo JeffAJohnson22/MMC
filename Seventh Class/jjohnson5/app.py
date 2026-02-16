@@ -2,7 +2,6 @@ import os
 import random
 import numpy as np
 import pandas as pd
-import pickle
 from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import LinearRegression, LogisticRegression
@@ -13,31 +12,21 @@ import warnings
 
 warnings.filterwarnings("ignore")
 
+# Generate the data
 def generate_patient_data():
     patients = []
 
     for _ in range(500):
         age = random.randint(18, 100)
-        bmi = round(random.uniform(15.0, 30.0), 1)
+        bmi = round(random.uniform(10.0, 60.0), 1)
         blood_sugar_level = random.randint(50, 315)
 
-        if age < 35:          history_points = 0
-        elif age < 44:        history_points = 3
-        elif age < 60:        history_points = 5
-        else:                 history_points = 7
+        # Each feature adds points to the overall risk score
+        age_points = age // 2              # 1 point for every 2 years of age
+        bmi_points = bmi * 2               # 2 points for every 1 BMI unit
+        sugar_points = blood_sugar_level // 7  # 1 point for every 7 blood sugar units
 
-        if bmi < 18.5:        history_points += 0
-        elif bmi < 25:        history_points += 3
-        elif bmi < 30:        history_points += 5
-        else:                  history_points += 7
-
-        if blood_sugar_level < 100:    history_points += 0
-        elif blood_sugar_level < 126:  history_points += 3
-        elif blood_sugar_level < 200:  history_points += 5
-        else:                          history_points += 7
-
-        history_points = max(history_points, 1)
-        health_risk_score = age + bmi + round(blood_sugar_level / history_points)
+        health_risk_score = round(age_points + bmi_points + sugar_points)
 
         patients.append({
             'age': age,
@@ -57,42 +46,38 @@ def add_missing_values(patient_data, missing_fraction=0.05):
     return patient_data
 
 
-def main():
-    # Load existing data if available, otherwise generate and save it once
-    if os.path.exists('patient_health_data.csv'):
-        raw_patient_data = pd.read_csv('patient_health_data.csv')
-    else:
-        raw_patient_data = generate_patient_data()
-        raw_patient_data.to_csv('patient_health_data.csv', index=False)
+# Preprocess the data
+def clean_data(raw_data):
+    # Add missing values to simulate messy real world data
+    data_with_gaps = add_missing_values(raw_data)
 
-    # Add missing values to simulate messy real-world data
-    data_with_gaps = add_missing_values(raw_patient_data)
-
-    # Imputation is going to fill up the missing values with a median
-    # So no empty cells break the model
+    # Median imputation fills missing values so no empty cells break the model
     imputer = SimpleImputer(strategy='median')
-    data_imputed = imputer.fit_transform(data_with_gaps)
-    
-    # Standardization will scale whatever value to a relative number
-    # So that one value doesnt dominate the model just because its larger
-    scaler = StandardScaler()
-    data_standardized = scaler.fit_transform(data_imputed)
-    
-    # Convert back to DataFrame with original column names
     column_names = data_with_gaps.columns.tolist()
-    cleaned_patient_data = pd.DataFrame(data_standardized, columns=column_names)
+    data_imputed = pd.DataFrame(imputer.fit_transform(data_with_gaps), columns=column_names)
 
-    # Save cleaned data
-    cleaned_patient_data.to_csv('patient_health_data_clean.csv', index=False)
-    
-    # Prepare data for modeling
-    patient_features = cleaned_patient_data[['age', 'bmi', 'blood_sugar_level']].values
-    health_risk_scores = cleaned_patient_data['health_risk_score'].values
-    
-    # Split up the data into training and testing sets (80/20 split)
-    features_train, features_test, risk_scores_train, risk_scores_test = train_test_split(patient_features, health_risk_scores, test_size=0.2, random_state=42)
-    
-    # Make a new scaler so the 3 input features are good for the model
+    # Standardization scales values to z scores so no single feature
+    # dominates the model just because its numbers are larger
+    scaler = StandardScaler()
+    data_standardized = pd.DataFrame(scaler.fit_transform(data_imputed), columns=column_names)
+
+    # Save both stages: imputed for model training, standardized to show full preprocessing
+    data_standardized.to_csv('patient_health_data_standardized.csv', index=False)
+
+    return data_standardized
+
+# Bias Variance 
+def train_models(data_imputed):
+    # Separate features and target
+    patient_features = data_imputed[['age', 'bmi', 'blood_sugar_level']].values
+    health_risk_scores = data_imputed['health_risk_score'].values
+
+    # Split into training and testing sets 
+    features_train, features_test, risk_scores_train, risk_scores_test = train_test_split(
+        patient_features, health_risk_scores, test_size=0.2, random_state=42
+    )
+
+    # Scale features once for modeling
     feature_scaler = StandardScaler()
     features_train_scaled = feature_scaler.fit_transform(features_train)
     features_test_scaled = feature_scaler.transform(features_test)
@@ -110,152 +95,156 @@ def main():
     underfit_model = LinearRegression()
     underfit_model.fit(age_train, risk_scores_train)
     predictions_underfit = underfit_model.predict(age_test)
-    
+
     mse_underfit = mean_squared_error(risk_scores_test, predictions_underfit)
     r2_underfit = r2_score(risk_scores_test, predictions_underfit)
 
-    # Overfit/High Variance: A model using PolynomialFeatures with a degree of 10 or higher.
+    # Overfit Model/High Variance 
     poly = PolynomialFeatures(degree=10)
-    features_train_polynomial = poly.fit_transform(features_train_scaled)
-    features_test_polynomial = poly.transform(features_test_scaled)
-    
+    features_train_poly = poly.fit_transform(features_train_scaled)
+    features_test_poly = poly.transform(features_test_scaled)
+
     overfit_model = LinearRegression()
-    overfit_model.fit(features_train_polynomial, risk_scores_train)
-    predictions_overfit = overfit_model.predict(features_test_polynomial)
-    
+    overfit_model.fit(features_train_poly, risk_scores_train)
+    predictions_overfit = overfit_model.predict(features_test_poly)
+
     mse_overfit = mean_squared_error(risk_scores_test, predictions_overfit)
     r2_overfit = r2_score(risk_scores_test, predictions_overfit)
-    
+
     optimal_model = LinearRegression()
     optimal_model.fit(features_train_scaled, risk_scores_train)
     predictions_optimal = optimal_model.predict(features_test_scaled)
-    
+
     mse_optimal = mean_squared_error(risk_scores_test, predictions_optimal)
     r2_optimal = r2_score(risk_scores_test, predictions_optimal)
-    
+
+    median_risk = np.median(health_risk_scores)
+    risk_binary_train = (risk_scores_train > median_risk).astype(int)
+
+    logistic_model = LogisticRegression(random_state=42, max_iter=1000)
+    logistic_model.fit(features_train_scaled, risk_binary_train)
+
+    # Print metrics
     print("\n" + "="*30)
     print("Model Performance Metrics")
     print("="*30)
     print(f"Underfit (High Bias) -> MSE: {mse_underfit:.2f} | R2: {r2_underfit:.2f}")
     print(f"Optimal Model        -> MSE: {mse_optimal:.2f}  | R2: {r2_optimal:.2f}")
     print(f"Overfit (High Var)   -> MSE: {mse_overfit:.2f}  | R2: {r2_overfit:.2f}")
-        
-    # Save the scaler for preprocessing new data
-    with open('scaler.pkl', 'wb') as f:
-        pickle.dump(feature_scaler, f)
-    
-    # Save the optimal model
-    with open('optimal_model.pkl', 'wb') as f:
-        pickle.dump(optimal_model, f)
-    
-    # Train a Logistic Regression model for risk probability
-    # Create binary labels for logistic regression
-    median_risk = np.median(health_risk_scores)
-    risk_binary_train = (risk_scores_train > median_risk).astype(int)
-    
-    logistic_model = LogisticRegression(random_state=42, max_iter=1000)
-    logistic_model.fit(features_train_scaled, risk_binary_train)
-    
-    with open('logistic_model.pkl', 'wb') as f:
-        pickle.dump(logistic_model, f)
 
+    # Min/max for normalizing predictions to 0 to 100 scale
+    risk_min = health_risk_scores.min()
+    risk_max = health_risk_scores.max()
+
+    return feature_scaler, optimal_model, logistic_model, risk_min, risk_max
+
+
+# Interface for the user
+def get_patient_input():
+    age = float(input("Enter patient age (18 to 100): "))
+    if not (18 <= age <= 100):
+        print("Invalid. Age must be between 18 and 100.")
+        return None
+
+    bmi = float(input("Enter patient BMI (10.0 to 60.0): "))
+    if not (10.0 <= bmi <= 60.0):
+        print("Invalid. BMI must be between 10.0 and 60.0.")
+        return None
+
+    blood_sugar = float(input("Enter patient blood sugar level (50 to 315): "))
+    if not (50 <= blood_sugar <= 315):
+        print("Invalid. Blood sugar must be between 50 and 315.")
+        return None
+
+    return age, bmi, blood_sugar
+
+
+def predict_risk(age, bmi, blood_sugar, feature_scaler, 
+optimal_model, logistic_model, risk_min, risk_max):
+    # Scale the raw input using the same scaler the models were trained with
+    patient_input = np.array([[age, bmi, blood_sugar]])
+    patient_input_scaled = feature_scaler.transform(patient_input)
+
+    # Predicted health risk score normalized to 0 to 100
+    predicted_risk_raw = optimal_model.predict(patient_input_scaled)[0]
+    health_risk_normalized = max(0, min(100, ((predicted_risk_raw - risk_min) / (risk_max - risk_min)) * 100))
+
+    # Probability of risk from logistic regression
+    risk_probability = logistic_model.predict_proba(patient_input_scaled)[0][1] * 100
+
+    # Diagnosis based on 60 point threshold
+    if health_risk_normalized >= 60 or risk_probability >= 60:
+        diagnosis = "AT RISK"
+    else:
+        diagnosis = "HEALTHY"
+
+    return health_risk_normalized, risk_probability, diagnosis
+
+
+def display_results(age, bmi, blood_sugar, health_risk_normalized, risk_probability, diagnosis):
+    print("\n" + "="*30)
+    print("Patient Health Risk Assessment")
+    print("="*30)
+    print(f"Patient: Age={age}, BMI={bmi}, Blood Sugar={blood_sugar}")
+    print(f"\nPredicted Health Risk Score: {health_risk_normalized:.2f}/100")
+    print(f"Probability of Risk: {risk_probability:.2f}%")
+    print(f"\nDiagnosis: {diagnosis}")
+    print("="*30)
+
+
+def the_interface(feature_scaler, optimal_model, logistic_model, risk_min, risk_max):
     print("\n" + "="*30)
     print("New Patient Inference")
     print("="*30 + "\n")
-    
+
     while True:
         try:
-            age = float(input("Enter patient age (18-100): "))
-            if not (18 <= age <= 100):
-                print("Invalid. Age must be between 18 and 100.")
+            patient_input = get_patient_input()
+            if patient_input is None:
                 continue
-            
-            bmi = float(input("Enter patient BMI (10.0-60.0): "))
-            if not (10.0 <= bmi <= 60.0):
-                print("Invalid. BMI must be between 10.0 and 60.0.")
-                continue
-            
-            blood_sugar = float(input("Enter patient blood sugar level 50-315."))
-            if not (50 <= blood_sugar <= 315):
-                print("Invalid. Blood sugar must be between 50 and 315.")
-                continue
-            
-            # Preprocess new patient data
-            patient_input = np.array([[age, bmi, blood_sugar]])
-            patient_input_scaled = feature_scaler.transform(patient_input)
-            
-            # Get predictions from optimal model
-            predicted_risk_raw = optimal_model.predict(patient_input_scaled)[0]
-            
-            # Normalize health_risk_score to 0-100 scale using fixed clinical boundaries
-            # Clinical scale: 50 = minimum risk, 200 = maximum risk
-            minimum_risk_threshold = 50
-            maximum_risk_threshold = 200
-            health_risk_normalized = max(0, min(100, ((predicted_risk_raw - minimum_risk_threshold) / (maximum_risk_threshold - minimum_risk_threshold)) * 100))
-            
-            # Get risk probability from logistic model
-            risk_probability = logistic_model.predict_proba(patient_input_scaled)[0][1] * 100
-            
-            # Determine BMI category
-            if bmi < 18.5:
-                bmi_category = "Underweight"
-            elif bmi <= 24.9:
-                bmi_category = "Healthy"
-            elif bmi <= 29.9:
-                bmi_category = "Overweight"
-            else:
-                bmi_category = "Obese"
-            
-            # Determine blood sugar category
-            if blood_sugar < 70:
-                blood_sugar_category = "Low (below normal)"
-            elif blood_sugar <= 99:
-                blood_sugar_category = "Normal"
-            elif blood_sugar <= 125:
-                blood_sugar_category = "Prediabetes"
-            else:
-                blood_sugar_category = "Diabetes"
-            
-            # Determine overall diagnosis based on clinical values
-            concerns = []
-            if bmi_category in ("Overweight", "Obese"):
-                concerns.append(bmi_category + " BMI")
-            elif bmi_category == "Underweight":
-                concerns.append("Underweight BMI")
-            if blood_sugar_category in ("Prediabetes", "Diabetes"):
-                concerns.append(blood_sugar_category + " blood sugar")
-            elif blood_sugar_category == "Low (below normal)":
-                concerns.append("Low blood sugar")
-            
-            if len(concerns) == 0:
-                diagnosis = "Healthy"
-            else:
-                diagnosis = "At Risk — " + ", ".join(concerns)
-            
-            # Display results
-            print("\n" + "="*40)
-            print("Patient Health Risk Assessment")
-            print("="*40)
-            print(f"Patient: Age={age}, BMI={bmi}, Blood Sugar={blood_sugar}")
-            print(f"\nBMI Category:         {bmi_category}")
-            print(f"Blood Sugar Category: {blood_sugar_category}")
-            print(f"\nPredicted Health Risk Score: {health_risk_normalized:.2f}/100")
-            print(f"Probability of Risk: {risk_probability:.2f}%")
-            print(f"\nDiagnosis: {diagnosis}")
-            print("="*40)
-            
+
+            age, bmi, blood_sugar = patient_input
+
+            health_risk_normalized, risk_probability, diagnosis = predict_risk(
+                age, bmi, blood_sugar, feature_scaler, optimal_model, logistic_model, 
+                risk_min, risk_max
+            )
+
+            display_results(age, bmi, blood_sugar, health_risk_normalized, risk_probability, diagnosis)
+
         except ValueError as e:
             print(f"Invalid input: {str(e)}")
             continue
         except Exception as e:
             print(f"Error: {type(e).__name__}: {str(e)}")
             continue
-        
-        # Ask if user wants to assess another patient
+
         another = input("\nAssess another patient? (yes/no): ").strip().lower()
         if another not in ['yes', 'y']:
             print("\n End of Program.")
             break
+
+        
+def main():
+    # Step 1: Load existing data if available, otherwise generate and save it once
+    if os.path.exists('patient_health_data.csv'):
+        raw_patient_data = pd.read_csv('patient_health_data.csv')
+    else:
+        raw_patient_data = generate_patient_data()
+        raw_patient_data.to_csv('patient_health_data.csv', index=False)
+
+    # Step 2: Load cleaned data if available, otherwise clean and save it
+    if os.path.exists('patient_health_data_clean.csv'):
+        data_imputed = pd.read_csv('patient_health_data_clean.csv')
+    else:
+        data_imputed = clean_data(raw_patient_data)
+
+    # Step 3: Train all models
+    feature_scaler, optimal_model, logistic_model, risk_min, risk_max = train_models(data_imputed)
+
+    # Step 4: Interactive patient inference loop
+    the_interface(feature_scaler, optimal_model, logistic_model, risk_min, risk_max)
+
 
 if __name__ == "__main__":
     main()
