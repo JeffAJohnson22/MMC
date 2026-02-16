@@ -1,12 +1,17 @@
 import random
 import numpy as np
 import pandas as pd
+import pickle
+import os
 from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import StandardScaler
-from sklearn.pipeline import Pipeline
+from sklearn.linear_model import LinearRegression, LogisticRegression
+from sklearn.preprocessing import PolynomialFeatures
+from sklearn.metrics import mean_squared_error, r2_score
+from sklearn.model_selection import train_test_split
 import warnings
 
-warnings.filterwarnings("ignore", category=UserWarning)
+warnings.filterwarnings("ignore")
 
 def generate_patient_data():
     patients = []
@@ -52,20 +57,12 @@ def add_missing_values(patient_data, missing_fraction=0.05):
     return patient_data
 
 
-pipeline = Pipeline([
-    ('imputer', SimpleImputer(strategy='median')),
-    ('scaler',  StandardScaler())
-])
-
-
 def main():
-    # Generate raw data and save it
     raw_patient_data = generate_patient_data()
     raw_patient_data.to_csv('patient_health_data.csv', index=False)
-    print(f"1) Generated {len(raw_patient_data)} patient records → patient_health_data.csv")
+    print(f"Dataset created and saved to: {os.getcwd()}/patient_health_data.csv")
 
     # Add missing values to simulate messy real-world data
-    # Call it ONCE and save the result — reuse this variable everywhere
     data_with_gaps = add_missing_values(raw_patient_data)
 
     count = 0
@@ -73,34 +70,163 @@ def main():
         for value in data_with_gaps[column]:
             if pd.isna(value):
                 count += 1
-    print(f"2) Introduced {count} missing values")
+    print(f"Added {count} missing values to simulate real-world data")
 
-    # Clean the data: fill blanks + scale everything
-    # .values gives a plain numpy array (avoids the feature-name warning)
+    
+    # Imputation is going to fill up the missing values with a median
+    # So no empty cells break the model
+    imputer = SimpleImputer(strategy='median')
+    data_imputed = imputer.fit_transform(data_with_gaps)
+    
+    # Standardization will scale whatever value to a relative number
+    # So that one value doesnt dominate the model just because its larger
+    scaler = StandardScaler()
+    data_standardized = scaler.fit_transform(data_imputed)
+    
+    # Convert back to DataFrame with original column names
     column_names = data_with_gaps.columns.tolist()
-    cleaned_array = pipeline.fit_transform(data_with_gaps.values)
-    cleaned_patient_data = pd.DataFrame(cleaned_array, columns=column_names)
+    cleaned_patient_data = pd.DataFrame(data_standardized, columns=column_names)
 
     # Save cleaned data
     cleaned_patient_data.to_csv('patient_health_data_clean.csv', index=False)
-    print("3) Cleaned & scaled → patient_health_data_clean.csv")
+    
+    # Prepare data for modeling
+    X = cleaned_patient_data[['age', 'bmi', 'blood_sugar_level']].values
+    y = cleaned_patient_data['health_risk_score'].values
+    
+    # Split up the data into training and testing sets (80/20 split)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    
+    # Make a new scaler so the 3 input features are good for the model
+    feature_scaler = StandardScaler()
+    X_train_scaled = feature_scaler.fit_transform(X_train)
+    X_test_scaled = feature_scaler.transform(X_test)
+    
+    X_train_underfit = []
+    for row in X_train_scaled:
+        X_train_underfit.append([row[0]])
+    X_train_underfit = np.array(X_train_underfit)
+    
+    X_test_underfit = []
+    for row in X_test_scaled:
+        X_test_underfit.append([row[0]])
+    X_test_underfit = np.array(X_test_underfit)
+    
+    underfit_model = LinearRegression()
+    underfit_model.fit(X_train_underfit, y_train)
+    y_pred_underfit = underfit_model.predict(X_test_underfit)
+    
+    mse_underfit = mean_squared_error(y_test, y_pred_underfit)
+    r2_underfit = r2_score(y_test, y_pred_underfit)
 
-    # Before / After
-    print("\n— BEFORE (first 5 rows, with missing values) —")
-    print(data_with_gaps.head().to_string(index=False))
-    print("\n— AFTER (first 5 rows, cleaned & scaled) —")
-    print(cleaned_patient_data.head().to_string(index=False))
+    # Overfit (High Variance): A model using PolynomialFeatures with a degree of 10 or higher.
+    poly = PolynomialFeatures(degree=10)
+    X_train_overfit = poly.fit_transform(X_train_scaled)
+    X_test_overfit = poly.transform(X_test_scaled)
+    
+    overfit_model = LinearRegression()
+    overfit_model.fit(X_train_overfit, y_train)
+    y_pred_overfit = overfit_model.predict(X_test_overfit)
+    
+    mse_overfit = mean_squared_error(y_test, y_pred_overfit)
+    r2_overfit = r2_score(y_test, y_pred_overfit)
+    
+    optimal_model = LinearRegression()
+    optimal_model.fit(X_train_scaled, y_train)
+    y_pred_optimal = optimal_model.predict(X_test_scaled)
+    
+    mse_optimal = mean_squared_error(y_test, y_pred_optimal)
+    r2_optimal = r2_score(y_test, y_pred_optimal)
+    
+    print("\n" + "="*30)
+    print("Model Performance Metrics")
+    print("="*30)
+    print(f"Underfit (High Bias) -> MSE: {mse_underfit:.2f} | R2: {r2_underfit:.2f}")
+    print(f"Optimal Model        -> MSE: {mse_optimal:.2f}  | R2: {r2_optimal:.2f}")
+    print(f"Overfit (High Var)   -> MSE: {mse_overfit:.2f}  | R2: {r2_overfit:.2f}")
+        
+    # Save the scaler for preprocessing new data
+    with open('scaler.pkl', 'wb') as f:
+        pickle.dump(feature_scaler, f)
+    
+    # Save the optimal model
+    with open('optimal_model.pkl', 'wb') as f:
+        pickle.dump(optimal_model, f)
+    
+    # Train a Logistic Regression model for risk probability
+    # Create binary labels for logistic regression
+    median_risk = np.median(y)
+    y_binary_train = (y_train > median_risk).astype(int)
+    
+    logistic_model = LogisticRegression(random_state=42, max_iter=1000)
+    logistic_model.fit(X_train_scaled, y_binary_train)
+    
+    with open('logistic_model.pkl', 'wb') as f:
+        pickle.dump(logistic_model, f)
 
-    # Confirm zero missing values remain
-    print(f"\nMissing values left: {cleaned_patient_data.isnull().sum().sum()}")
-
-    # Prove it works on new data with no warnings
-    new_patient = np.array([[45, 22.5, 130, 85]])
-    new_patient_scaled = pipeline.transform(new_patient)
-    print(f"\nNew patient raw:    {new_patient[0]}")
-    print(f"New patient scaled: {np.round(new_patient_scaled[0], 4)}")
-    print("Zero warnings ✓")
-
+    print("\n" + "="*30)
+    print("New Patient Inference")
+    print("="*30 + "\n")
+    
+    while True:
+        try:
+            age = float(input("Enter patient age: "))
+            bmi = float(input("Enter patient BMI: "))
+            blood_sugar = float(input("Enter patient blood sugar level: "))
+            
+            # Validate inputs
+            if not (18 <= age <= 100):
+                print("Age must be between 18 and 100")
+                continue
+            if not (15.0 <= bmi <= 30.0):
+                print("BMI must be between 15.0 and 30.0")
+                continue
+            if not (50 <= blood_sugar <= 315):
+                print("Blood Sugar Level must be between 50 and 315")
+                continue
+            
+            # Preprocess new patient data
+            new_patient = np.array([[age, bmi, blood_sugar]])
+            new_patient_scaled = feature_scaler.transform(new_patient)
+            
+            # Get predictions from optimal model
+            health_risk_raw = optimal_model.predict(new_patient_scaled)[0]
+            
+            # Normalize health_risk_score to 0-100 scale using fixed clinical boundaries
+            # Clinical scale: 50 = minimum risk, 200 = maximum risk
+            clinical_min = 50
+            clinical_max = 200
+            health_risk_normalized = max(0, min(100, ((health_risk_raw - clinical_min) / (clinical_max - clinical_min)) * 100))
+            
+            # Get risk probability from logistic model
+            risk_probability = logistic_model.predict_proba(new_patient_scaled)[0][1] * 100
+            
+            # Determine diagnosis based on 60-point threshold
+            diagnosis = "is at risk" if health_risk_normalized >= 60 else "is healthy"
+            
+            # Display results
+            print("\n" + "="*30)
+            print("Patient Health Risk Assessment")
+            print("="*30)
+            print(f"Patient: Age={age}, BMI={bmi}, Blood Sugar={blood_sugar}")
+            print(f"\nPredicted Health Risk Score: {health_risk_normalized:.2f}/100")
+            print(f"Probability of Risk: {risk_probability:.2f}%")
+            print(f"\n Diagnosis: {diagnosis}")
+            print(f"Threshold: 60 points | Patient Score: {health_risk_normalized:.2f}")
+            print("="*30)
+            
+        except ValueError as e:
+            print(f"Invalid input: {str(e)}")
+            continue
+        except Exception as e:
+            print(f"Error: {type(e).__name__}: {str(e)}")
+            continue
+        
+        # Ask if user wants to assess another patient
+        another = input("\nAssess another patient? (yes/no): ").strip().lower()
+        if another not in ['yes', 'y']:
+            print("\n End of Program.")
+            break
 
 if __name__ == "__main__":
     main()
