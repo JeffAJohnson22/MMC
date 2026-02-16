@@ -1,8 +1,8 @@
+import os
 import random
 import numpy as np
 import pandas as pd
 import pickle
-import os
 from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import LinearRegression, LogisticRegression
@@ -58,19 +58,16 @@ def add_missing_values(patient_data, missing_fraction=0.05):
 
 
 def main():
-    raw_patient_data = generate_patient_data()
-    raw_patient_data.to_csv('patient_health_data.csv', index=False)
+    # Load existing data if available, otherwise generate and save it once
+    if os.path.exists('patient_health_data.csv'):
+        raw_patient_data = pd.read_csv('patient_health_data.csv')
+    else:
+        raw_patient_data = generate_patient_data()
+        raw_patient_data.to_csv('patient_health_data.csv', index=False)
 
     # Add missing values to simulate messy real-world data
     data_with_gaps = add_missing_values(raw_patient_data)
 
-    count = 0
-    for column in data_with_gaps.columns:
-        for value in data_with_gaps[column]:
-            if pd.isna(value):
-                count += 1
-
-    
     # Imputation is going to fill up the missing values with a median
     # So no empty cells break the model
     imputer = SimpleImputer(strategy='median')
@@ -117,7 +114,7 @@ def main():
     mse_underfit = mean_squared_error(risk_scores_test, predictions_underfit)
     r2_underfit = r2_score(risk_scores_test, predictions_underfit)
 
-    # Overfit (High Variance): A model using PolynomialFeatures with a degree of 10 or higher.
+    # Overfit/High Variance: A model using PolynomialFeatures with a degree of 10 or higher.
     poly = PolynomialFeatures(degree=10)
     features_train_polynomial = poly.fit_transform(features_train_scaled)
     features_test_polynomial = poly.transform(features_test_scaled)
@@ -168,19 +165,19 @@ def main():
     
     while True:
         try:
-            age = float(input("Enter patient age: "))
-            bmi = float(input("Enter patient BMI: "))
-            blood_sugar = float(input("Enter patient blood sugar level: "))
-            
-            # Validate inputs
+            age = float(input("Enter patient age (18-100): "))
             if not (18 <= age <= 100):
-                print("Age must be between 18 and 100")
+                print("Invalid. Age must be between 18 and 100.")
                 continue
-            if not (15.0 <= bmi <= 30.0):
-                print("BMI must be between 15.0 and 30.0")
+            
+            bmi = float(input("Enter patient BMI (10.0-60.0): "))
+            if not (10.0 <= bmi <= 60.0):
+                print("Invalid. BMI must be between 10.0 and 60.0.")
                 continue
+            
+            blood_sugar = float(input("Enter patient blood sugar level 50-315."))
             if not (50 <= blood_sugar <= 315):
-                print("Blood Sugar Level must be between 50 and 315")
+                print("Invalid. Blood sugar must be between 50 and 315.")
                 continue
             
             # Preprocess new patient data
@@ -199,19 +196,53 @@ def main():
             # Get risk probability from logistic model
             risk_probability = logistic_model.predict_proba(patient_input_scaled)[0][1] * 100
             
-            # Determine diagnosis based on 60-point threshold
-            diagnosis = "is at risk" if health_risk_normalized >= 60 else "is healthy"
+            # Determine BMI category
+            if bmi < 18.5:
+                bmi_category = "Underweight"
+            elif bmi <= 24.9:
+                bmi_category = "Healthy"
+            elif bmi <= 29.9:
+                bmi_category = "Overweight"
+            else:
+                bmi_category = "Obese"
+            
+            # Determine blood sugar category
+            if blood_sugar < 70:
+                blood_sugar_category = "Low (below normal)"
+            elif blood_sugar <= 99:
+                blood_sugar_category = "Normal"
+            elif blood_sugar <= 125:
+                blood_sugar_category = "Prediabetes"
+            else:
+                blood_sugar_category = "Diabetes"
+            
+            # Determine overall diagnosis based on clinical values
+            concerns = []
+            if bmi_category in ("Overweight", "Obese"):
+                concerns.append(bmi_category + " BMI")
+            elif bmi_category == "Underweight":
+                concerns.append("Underweight BMI")
+            if blood_sugar_category in ("Prediabetes", "Diabetes"):
+                concerns.append(blood_sugar_category + " blood sugar")
+            elif blood_sugar_category == "Low (below normal)":
+                concerns.append("Low blood sugar")
+            
+            if len(concerns) == 0:
+                diagnosis = "Healthy"
+            else:
+                diagnosis = "At Risk — " + ", ".join(concerns)
             
             # Display results
-            print("\n" + "="*30)
+            print("\n" + "="*40)
             print("Patient Health Risk Assessment")
-            print("="*30)
+            print("="*40)
             print(f"Patient: Age={age}, BMI={bmi}, Blood Sugar={blood_sugar}")
+            print(f"\nBMI Category:         {bmi_category}")
+            print(f"Blood Sugar Category: {blood_sugar_category}")
             print(f"\nPredicted Health Risk Score: {health_risk_normalized:.2f}/100")
             print(f"Probability of Risk: {risk_probability:.2f}%")
-            print(f"\n Diagnosis: {diagnosis}")
-            print(f"Threshold: 60 points | Patient Score: {health_risk_normalized:.2f}")
-            print("="*30)
+            print(f"\nDiagnosis: {diagnosis}")
+            print("="*40)
             
         except ValueError as e:
             print(f"Invalid input: {str(e)}")
