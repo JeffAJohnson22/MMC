@@ -1,3 +1,9 @@
+"""
+Project #5: Patient Health Risk Assessment
+Name: Jeff Johnson
+Date: 02/16/2026
+"""
+
 import os
 import random
 import numpy as np
@@ -9,7 +15,7 @@ from sklearn.preprocessing import PolynomialFeatures
 from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.model_selection import train_test_split
 
-# Creates 500 fake patients with age, bmi, blood sugar, and a risk score
+# Creates 500 patients with age, bmi, blood sugar, and a risk score
 def generate_patient_data():
     patients = []
 
@@ -19,9 +25,9 @@ def generate_patient_data():
         blood_sugar_level = random.randint(50, 315)
 
         # Risk score is built from all three features
+        # Divisor grows with age + bmi
         age_points = age // (3 + int(age // 10))
         bmi_points = bmi * 2 + int(bmi // 10)
-        # Divisor grows with age + bmi, so young low-bmi patients with high sugar score higher
         sugar_points = blood_sugar_level // (3 + int((age + bmi) // 10))
 
         health_risk_score = round(age_points + bmi_points + sugar_points)
@@ -43,27 +49,29 @@ def add_missing_values(patient_data, missing_fraction=0.05):
         patient_data.loc[rows_to_blank, column] = np.nan
     return patient_data
 
-# Cleans the data: fills missing values with median
+# Cleans the data andfills missing values with median
 def clean_data(raw_data):
-    # Add missing values to simulate real world data
+    # Adds missing values to simulate real world data
     data_with_gaps = add_missing_values(raw_data)
 
-    # Fill missing values with the median of each column
+    # Fills missing values with the median of each column
     imputer = SimpleImputer(strategy='median')
     column_names = data_with_gaps.columns.tolist()
     data_imputed = pd.DataFrame(imputer.fit_transform(data_with_gaps), columns=column_names)
 
-    # Save and return the imputed data at raw scale so train_models handles its own scaling
-    data_imputed.to_csv('og_patient_data_cleaned.csv', index=False)
+    # Saves and return the imputed data at raw scale so train_models handles its own scaling
+    data_imputed.to_csv('patient_health_data_cleaned.csv', index=False)
     return data_imputed
 
 # Trains 3 models to show bias-variance tradeoff, plus a logistic model for classification
 def train_models(data_imputed):
-    # X = features, y = target
+    # Grabs the patient info and feed into the model
     patient_features = data_imputed[['age', 'bmi', 'blood_sugar_level']]
+    # The risk score we want the model to learn to predict
     health_risk_scores = data_imputed['health_risk_score'].values
 
-    # 80% train, 20% test
+    # Give 80% of patients to the model to study, hold back 20% as a pop quiz
+    # random_state=42 just makes sure the quiz is the same every time
     features_train, features_test, risk_scores_train, risk_scores_test = train_test_split(
         patient_features, health_risk_scores, test_size=0.2, random_state=42
     )
@@ -73,7 +81,7 @@ def train_models(data_imputed):
     features_train_scaled = feature_scaler.fit_transform(features_train)
     features_test_scaled = feature_scaler.transform(features_test)
 
-    # Underfit model (high bias): only uses age, too simple to learn the full pattern 
+    # Underfit (High Bias): A model using only one input feature.
     age_train = []
     for row in features_train_scaled:
         age_train.append([row[0]])
@@ -84,6 +92,7 @@ def train_models(data_imputed):
         age_test.append([row[0]])
     age_test = np.array(age_test)
 
+    # Underfit model/high bias: only uses age, too simple to learn the full pattern 
     underfit_model = LinearRegression()
     underfit_model.fit(age_train, risk_scores_train)
     predictions_underfit = underfit_model.predict(age_test)
@@ -91,31 +100,33 @@ def train_models(data_imputed):
     mse_underfit = mean_squared_error(risk_scores_test, predictions_underfit)
     r2_underfit = r2_score(risk_scores_test, predictions_underfit)
 
-    # Overfit model (high variance): degree-10 polynomial, memorizes noise 
+    # Overfit (High Variance): A model using PolynomialFeatures with a degree of 10 or higher.
     poly = PolynomialFeatures(degree=10)
     features_train_poly = poly.fit_transform(features_train_scaled)
     features_test_poly = poly.transform(features_test_scaled)
 
     overfit_model = LinearRegression()
     overfit_model.fit(features_train_poly, risk_scores_train)
-    predictions_overfit = overfit_model.predict(features_test_poly)
+    overfitting = overfit_model.predict(features_test_poly)
 
-    mse_overfit = mean_squared_error(risk_scores_test, predictions_overfit)
-    r2_overfit = r2_score(risk_scores_test, predictions_overfit)
+    mse_overfit = mean_squared_error(risk_scores_test, overfitting)
+    r2_overfit = r2_score(risk_scores_test, overfitting)
 
-    # Optimal model/balanced: all 3 features, plain linear regression 
+    # Optimal: A Multiple Linear Regression model using all three scaled features.
     optimal_model = LinearRegression()
     optimal_model.fit(features_train_scaled, risk_scores_train)
-    predictions_optimal = optimal_model.predict(features_test_scaled)
+    optimal_fit = optimal_model.predict(features_test_scaled)
 
-    mse_optimal = mean_squared_error(risk_scores_test, predictions_optimal)
-    r2_optimal = r2_score(risk_scores_test, predictions_optimal)
+    mse_optimal = mean_squared_error(risk_scores_test, optimal_fit)
+    r2_optimal = r2_score(risk_scores_test, optimal_fit)
 
     # Logistic regression: classifies patients as above or below median risk 
     median_risk = np.median(health_risk_scores)
-    risk_binary_train = (risk_scores_train > median_risk).astype(int)  # 1 = high risk, 0 = low
+    risk_binary_train = (risk_scores_train > median_risk).astype(int)  
 
-    logistic_model = LogisticRegression(random_state=42, max_iter=1000)
+    # random_state of 42 locks in the randomness so we get the same results every run
+    # max_iter of 2000 gives the model more attempts to learn
+    logistic_model = LogisticRegression(random_state=42, max_iter=2000)
     logistic_model.fit(features_train_scaled, risk_binary_train)
 
     # Print comparison of all three models
@@ -154,7 +165,7 @@ def get_patient_input():
 # Scales input, runs both models, and returns a score, probability, and diagnosis
 def predict_risk(age, bmi, blood_sugar, feature_scaler,
                  optimal_model, logistic_model, risk_min, risk_max):
-    # Scale input the same way training data was scaled (DataFrame preserves feature names)
+    # Scale input the same way training data was scaled
     patient_input = pd.DataFrame([[age, bmi, blood_sugar]], columns=['age', 'bmi', 'blood_sugar_level'])
     patient_input_scaled = feature_scaler.transform(patient_input)
 
@@ -173,13 +184,13 @@ def predict_risk(age, bmi, blood_sugar, feature_scaler,
 
     return health_risk_normalized, risk_probability, diagnosis
 
-# Prints the final results
+# Evaluation: Display the Mean Squared Error (MSE) and R-squared (R^2) for all three models in the terminal.
 def display_results(age, bmi, blood_sugar, health_risk_normalized, risk_probability, diagnosis):
     print("\n" + "="*30)
     print("Patient Health Risk Assessment")
     print("="*30)
     print(f"Patient: Age={age}, BMI={bmi}, Blood Sugar={blood_sugar}")
-    print(f"\nPredicted Health Risk Score: {health_risk_normalized:.2f}/100")
+    print(f"\nPredicted Health Risk Score: {health_risk_normalized:.2f}")
     print(f"Probability of Risk: {risk_probability:.2f}%")
     print(f"\nDiagnosis: {diagnosis}")
     print("="*30)
@@ -219,23 +230,27 @@ def the_interface(feature_scaler, optimal_model, logistic_model, risk_min, risk_
 
 
 def main():
-    # Load or generate raw patient data
-    if os.path.exists('original_patient_data.csv'):
-        raw_patient_data = pd.read_csv('original_patient_data.csv')
+    # Get the raw patient data
+    # If the CSV already exists, just load it or generate fresh data and save it for next time
+    raw_data_file = 'patient_health_data.csv'
+    if os.path.exists(raw_data_file):
+        raw_patient_data = pd.read_csv(raw_data_file)
     else:
         raw_patient_data = generate_patient_data()
-        raw_patient_data.to_csv('original_patient_data.csv', index=False)
+        raw_patient_data.to_csv(raw_data_file, index=False)
 
-    # Load or clean the data
-    if os.path.exists('og_patient_data_cleaned.csv'):
-        data_imputed = pd.read_csv('og_patient_data_cleaned.csv')
+    # Get the cleaned patient data
+    # If a cleaned version already exists, just load it or clean the raw data
+    cleaned_data_file = 'patient_health_data_cleaned.csv'
+    if os.path.exists(cleaned_data_file):
+        cleaned_data = pd.read_csv(cleaned_data_file)
     else:
-        data_imputed = clean_data(raw_patient_data)
+        cleaned_data = clean_data(raw_patient_data)
 
     # Train all models and print metrics
-    feature_scaler, optimal_model, logistic_model, risk_min, risk_max = train_models(data_imputed)
+    feature_scaler, optimal_model, logistic_model, risk_min, risk_max = train_models(cleaned_data)
 
-    # Start the interactive patient assessment loop
+    # Start the interactive loop
     the_interface(feature_scaler, optimal_model, logistic_model, risk_min, risk_max)
 
 if __name__ == "__main__":
