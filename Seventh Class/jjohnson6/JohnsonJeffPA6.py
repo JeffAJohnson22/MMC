@@ -8,13 +8,14 @@ import os
 import random
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import LinearRegression, LogisticRegression
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.metrics import mean_squared_error, r2_score, accuracy_score
 from sklearn.model_selection import train_test_split
-from sklearn.tree import DecisionTreeClassifier
+from sklearn.tree import DecisionTreeClassifier, plot_tree
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.neighbors import KNeighborsClassifier
 
@@ -74,6 +75,28 @@ def main():
     knn_classifier = KNeighborsClassifier()
     knn_classifier.fit(X_train, y_train)
     print("k-Nearest Neighbors Classifier trained")
+    
+    # Visualize Decision Tree
+    print("\n=== Displaying Decision Tree Visualizations ===")
+    print("Close the matplotlib windows to continue...")
+    
+    fig, axes = plt.subplots(1, 2, figsize=(16, 8))
+    
+    # Graph A: Feature Importance
+    feature_importance = dt_classifier.feature_importances_
+    features = ['Age', 'BMI', 'Blood Sugar']
+    axes[0].barh(features, feature_importance, color=['#1f77b4', '#ff7f0e', '#2ca02c'])
+    axes[0].set_xlabel('Importance')
+    axes[0].set_title('Graph A: Decision Tree Feature Importance')
+    axes[0].grid(axis='x', alpha=0.3)
+    
+    # Graph B: Tree Structure
+    plot_tree(dt_classifier, feature_names=features, class_names=['No Risk', 'Risk'],
+              filled=True, ax=axes[1], fontsize=10)
+    axes[1].set_title('Graph B: Decision Tree Structure')
+    
+    plt.tight_layout()
+    plt.show()
     
     # Make predictions on test set
     print("\n=== Model Accuracy Scores ===")
