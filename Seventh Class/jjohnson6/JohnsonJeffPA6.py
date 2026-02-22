@@ -12,7 +12,7 @@ from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import LinearRegression, LogisticRegression
 from sklearn.preprocessing import PolynomialFeatures
-from sklearn.metrics import mean_squared_error, r2_score
+from sklearn.metrics import mean_squared_error, r2_score, accuracy_score
 from sklearn.model_selection import train_test_split
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier
@@ -74,6 +74,21 @@ def main():
     knn_classifier = KNeighborsClassifier()
     knn_classifier.fit(X_train, y_train)
     print("k-Nearest Neighbors Classifier trained")
+    
+    # Make predictions on test set
+    print("\n=== Model Accuracy Scores ===")
+    
+    dt_predictions = dt_classifier.predict(X_test)
+    dt_accuracy = accuracy_score(y_test, dt_predictions)
+    print(f"Decision Tree Accuracy: {dt_accuracy:.4f}")
+    
+    rf_predictions = rf_classifier.predict(X_test)
+    rf_accuracy = accuracy_score(y_test, rf_predictions)
+    print(f"Random Forest Accuracy: {rf_accuracy:.4f}")
+    
+    knn_predictions = knn_classifier.predict(X_test)
+    knn_accuracy = accuracy_score(y_test, knn_predictions)
+    print(f"k-Nearest Neighbors Accuracy: {knn_accuracy:.4f}")
     
 if __name__ == "__main__":
     main()
