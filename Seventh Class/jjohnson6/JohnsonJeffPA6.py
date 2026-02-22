@@ -80,21 +80,23 @@ def main():
     print("\n=== Displaying Decision Tree Visualizations ===")
     print("Close the matplotlib windows to continue...")
     
-    fig, axes = plt.subplots(1, 2, figsize=(16, 8))
-    
-    # Graph A: Feature Importance
+    feature_names = ['Age', 'BMI', 'Blood Sugar']
     feature_importance = dt_classifier.feature_importances_
-    features = ['Age', 'BMI', 'Blood Sugar']
-    axes[0].barh(features, feature_importance, color=['#1f77b4', '#ff7f0e', '#2ca02c'])
-    axes[0].set_xlabel('Importance')
-    axes[0].set_title('Graph A: Decision Tree Feature Importance')
-    axes[0].grid(axis='x', alpha=0.3)
-    
+    plt.figure(figsize=(18, 7))
+
+    # Graph A: Feature Importance
+    plt.subplot(1, 2, 1)
+    plt.barh(feature_names, feature_importance, color=['#1f77b4', '#ff7f0e', '#2ca02c'])
+    plt.title('Graph A: Feature Importance')
+    plt.xlabel('Importance')
+    plt.grid(axis='x', alpha=0.3)
+
     # Graph B: Tree Structure
-    plot_tree(dt_classifier, feature_names=features, class_names=['No Risk', 'Risk'],
-              filled=True, ax=axes[1], fontsize=10)
-    axes[1].set_title('Graph B: Decision Tree Structure')
-    
+    plt.subplot(1, 2, 2)
+    plot_tree(dt_classifier, feature_names=feature_names, class_names=['No Risk', 'Risk'],
+              filled=True, fontsize=8)
+    plt.title('Graph B: Decision Tree Structure')
+
     plt.tight_layout()
     plt.show()
     
