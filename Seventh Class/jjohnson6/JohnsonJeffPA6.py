@@ -114,6 +114,28 @@ def main():
     knn_predictions = knn_classifier.predict(X_test)
     knn_accuracy = accuracy_score(y_test, knn_predictions)
     print(f"k-Nearest Neighbors Accuracy: {knn_accuracy:.4f}")
-    
+
+    # Interactive Terminal Inference
+    print("\n=== Patient Risk Prediction ===")
+    age = float(input("Enter patient Age: "))
+    bmi = float(input("Enter patient BMI: "))
+    blood_sugar = float(input("Enter patient Blood Sugar: "))
+
+    patient = scaler.transform([[age, bmi, blood_sugar]])
+    labels = {0: "Healthy", 1: "At Risk"}
+
+    dt_vote = dt_classifier.predict(patient)[0]
+    rf_vote = rf_classifier.predict(patient)[0]
+    knn_vote = knn_classifier.predict(patient)[0]
+
+    print("\n=== Voting Results ===")
+    print(f"Decision Tree:        {labels[dt_vote]}")
+    print(f"Random Forest:        {labels[rf_vote]}")
+    print(f"k-Nearest Neighbors:  {labels[knn_vote]}")
+
+    risk_votes = dt_vote + rf_vote + knn_vote
+    final = "At Risk" if risk_votes >= 2 else "Healthy"
+    print(f"\nFinal Verdict (majority vote): {final}")
+
 if __name__ == "__main__":
     main()
