@@ -14,6 +14,9 @@ from sklearn.linear_model import LinearRegression, LogisticRegression
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.model_selection import train_test_split
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.neighbors import KNeighborsClassifier
 
 # Creates 500 patients with age, bmi, and blood sugar
 def generate_patient_data():
@@ -53,6 +56,24 @@ def main():
     print(f"\nFeature scaling and train-test split completed:")
     print(f"Training set size: {X_train.shape[0]}")
     print(f"Test set size: {X_test.shape[0]}")
+    
+    # Train three classification models
+    print("\n=== Training Classification Models ===")
+    
+    # Decision Tree Classifier
+    dt_classifier = DecisionTreeClassifier(max_depth=3)
+    dt_classifier.fit(X_train, y_train)
+    print("Decision Tree Classifier trained")
+    
+    # Random Forest Classifier
+    rf_classifier = RandomForestClassifier()
+    rf_classifier.fit(X_train, y_train)
+    print("Random Forest Classifier trained")
+    
+    # k-Nearest Neighbors Classifier
+    knn_classifier = KNeighborsClassifier()
+    knn_classifier.fit(X_train, y_train)
+    print("k-Nearest Neighbors Classifier trained")
     
 if __name__ == "__main__":
     main()
