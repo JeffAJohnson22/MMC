@@ -39,5 +39,20 @@ def main():
     raw_patient_data.to_csv(csv_filename, index=False)
     print(f"\nPatient data saved to {csv_filename}")
     
+    # Separate features and target
+    X = raw_patient_data[['age', 'bmi', 'blood_sugar']]
+    y = raw_patient_data['diagnosis']
+    
+    # Scale features using StandardScaler
+    scaler = StandardScaler()
+    X_scaled = scaler.fit_transform(X)
+    
+    # Perform 80/20 train-test split
+    X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.2, random_state=42)
+    
+    print(f"\nFeature scaling and train-test split completed:")
+    print(f"Training set size: {X_train.shape[0]}")
+    print(f"Test set size: {X_test.shape[0]}")
+    
 if __name__ == "__main__":
     main()
