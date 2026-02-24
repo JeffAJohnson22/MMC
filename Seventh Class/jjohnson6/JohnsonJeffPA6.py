@@ -4,16 +4,11 @@ Name: Jeff Johnson
 Date: 02/23/2026
 """
 
-import os
-import random
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import StandardScaler
-from sklearn.linear_model import LinearRegression, LogisticRegression
-from sklearn.preprocessing import PolynomialFeatures
-from sklearn.metrics import mean_squared_error, r2_score, accuracy_score
+from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
 from sklearn.tree import DecisionTreeClassifier, plot_tree
 from sklearn.ensemble import RandomForestClassifier
@@ -30,112 +25,99 @@ def generate_patient_data():
 
 def main():
     raw_patient_data = generate_patient_data()
-    
+
     # Create diagnosis classification based on risk logic
     risk_logic = (raw_patient_data['age'] * 0.3) + (raw_patient_data['bmi'] * 1.2) + (raw_patient_data['blood_sugar'] * 0.2)
     raw_patient_data['diagnosis'] = (risk_logic > 75).astype(int)
-    
-    print("Sample of Generated Patient Data:")
-    print(raw_patient_data.head())
-    
-    # Save to CSV in current working directory
+
+    # Save to CSV
     csv_filename = "classifier_patient_data.csv"
     raw_patient_data.to_csv(csv_filename, index=False)
-    print(f"\nPatient data saved to {csv_filename}")
-    
+
     # Separate features and target
     X = raw_patient_data[['age', 'bmi', 'blood_sugar']]
     y = raw_patient_data['diagnosis']
-    
-    # Scale features using StandardScaler
+
+    # Scale the features
     scaler = StandardScaler()
     X_scaled = scaler.fit_transform(X)
-    
-    # Perform 80/20 train-test split
+
+    # 80/20 train-test split
     X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.2, random_state=42)
-    
-    print(f"\nFeature scaling and train-test split completed:")
-    print(f"Training set size: {X_train.shape[0]}")
-    print(f"Test set size: {X_test.shape[0]}")
-    
+
     # Train three classification models
-    print("\n=== Training Classification Models ===")
-    
-    # Decision Tree Classifier
     dt_classifier = DecisionTreeClassifier(max_depth=3)
     dt_classifier.fit(X_train, y_train)
-    print("Decision Tree Classifier trained")
-    
-    # Random Forest Classifier
+
     rf_classifier = RandomForestClassifier()
     rf_classifier.fit(X_train, y_train)
-    print("Random Forest Classifier trained")
-    
-    # k-Nearest Neighbors Classifier
+
     knn_classifier = KNeighborsClassifier()
     knn_classifier.fit(X_train, y_train)
-    print("k-Nearest Neighbors Classifier trained")
-    
-    # Visualize Decision Tree
-    print("\n=== Displaying Decision Tree Visualizations ===")
-    print("Close the matplotlib windows to continue...")
-    
+
+    # Evaluate accuracy
+    dt_accuracy = accuracy_score(y_test, dt_classifier.predict(X_test))
+    rf_accuracy = accuracy_score(y_test, rf_classifier.predict(X_test))
+    knn_accuracy = accuracy_score(y_test, knn_classifier.predict(X_test))
+
+    print("=" * 30)
+    print("Model Accuracy Results")
+    print("=" * 30)
+    print()
+    print(f"Optimal Tree  -> Accuracy: {dt_accuracy:.2f}")
+    print(f"Random Forest -> Accuracy: {rf_accuracy:.2f}")
+    print(f"K-NN (k=5)    -> Accuracy: {knn_accuracy:.2f}")
+
+    # Visualize model logic
+    print("\n[SYSTEM] Visualizing model logic... (Close the plot window to continue to input)")
+
     feature_names = ['Age', 'BMI', 'Blood Sugar']
     feature_importance = dt_classifier.feature_importances_
-    plt.figure(figsize=(18, 7))
+    plt.figure(figsize=(24,10))
 
-    # Graph A: Feature Importance
+    # Graph A Feature Importance
     plt.subplot(1, 2, 1)
-    plt.barh(feature_names, feature_importance, color=['#1f77b4', '#ff7f0e', '#2ca02c'])
-    plt.title('Graph A: Feature Importance')
+    plt.barh(feature_names, feature_importance, color=["#1f38b4", "#00ca65", "#d80303"])
+    plt.title('Feature Importance')
     plt.xlabel('Importance')
     plt.grid(axis='x', alpha=0.3)
 
-    # Graph B: Tree Structure
+    # Graph B Tree Structure
     plt.subplot(1, 2, 2)
-    plot_tree(dt_classifier, feature_names=feature_names, class_names=['No Risk', 'Risk'],
-              filled=True, fontsize=8)
-    plt.title('Graph B: Decision Tree Structure')
+    plot_tree(dt_classifier, feature_names=feature_names, class_names=['No Risk', 'Risk'], filled=True)
+    plt.title('Decision Tree Structure')
 
-    plt.tight_layout()
     plt.show()
+
+    print("\n" + "="*30)
+    print("New Patient Diagnosis")
+    print("=" * 30)
     
-    # Make predictions on test set
-    print("\n=== Model Accuracy Scores ===")
-    
-    dt_predictions = dt_classifier.predict(X_test)
-    dt_accuracy = accuracy_score(y_test, dt_predictions)
-    print(f"Decision Tree Accuracy: {dt_accuracy:.4f}")
-    
-    rf_predictions = rf_classifier.predict(X_test)
-    rf_accuracy = accuracy_score(y_test, rf_predictions)
-    print(f"Random Forest Accuracy: {rf_accuracy:.4f}")
-    
-    knn_predictions = knn_classifier.predict(X_test)
-    knn_accuracy = accuracy_score(y_test, knn_predictions)
-    print(f"k-Nearest Neighbors Accuracy: {knn_accuracy:.4f}")
+    try:
+        # loop to get user input for new patient data
+        age = float(input("Enter Age: "))
+        bmi = float(input("Enter BMI: "))
+        blood_sugar = float(input("Enter Blood Sugar: "))
 
-    # Interactive Terminal Inference
-    print("\n=== Patient Risk Prediction ===")
-    age = float(input("Enter patient Age: "))
-    bmi = float(input("Enter patient BMI: "))
-    blood_sugar = float(input("Enter patient Blood Sugar: "))
+        # Create patient DataFrame with feature names
+        patient_df = pd.DataFrame({
+            'age': [age],
+            'bmi': [bmi],
+            'blood_sugar': [blood_sugar]
+        })
+        patient = scaler.transform(patient_df)
+        labels = {0: "Healthy", 1: "At Risk"}
 
-    patient = scaler.transform([[age, bmi, blood_sugar]])
-    labels = {0: "Healthy", 1: "At Risk"}
+        dt_vote = dt_classifier.predict(patient)[0]
+        rf_vote = rf_classifier.predict(patient)[0]
+        knn_vote = knn_classifier.predict(patient)[0]
 
-    dt_vote = dt_classifier.predict(patient)[0]
-    rf_vote = rf_classifier.predict(patient)[0]
-    knn_vote = knn_classifier.predict(patient)[0]
-
-    print("\n=== Voting Results ===")
-    print(f"Decision Tree:        {labels[dt_vote]}")
-    print(f"Random Forest:        {labels[rf_vote]}")
-    print(f"k-Nearest Neighbors:  {labels[knn_vote]}")
-
-    risk_votes = dt_vote + rf_vote + knn_vote
-    final = "At Risk" if risk_votes >= 2 else "Healthy"
-    print(f"\nFinal Verdict (majority vote): {final}")
+        print(f"\n[Voting Results]")
+        print(f"Decision Tree: {labels[dt_vote]}")
+        print(f"Random Forest: {labels[rf_vote]}")
+        print(f"K-NN (k=5):    {labels[knn_vote]}")
+    except ValueError:
+        print("Invalid input. Needs to be a number.")
 
 if __name__ == "__main__":
     main()
