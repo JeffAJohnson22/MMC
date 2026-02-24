@@ -35,44 +35,44 @@ def main():
     raw_patient_data.to_csv(csv_filename, index=False)
 
     # Separate features and target
-    X = raw_patient_data[['age', 'bmi', 'blood_sugar']]
-    y = raw_patient_data['diagnosis']
+    valueX = raw_patient_data[['age', 'bmi', 'blood_sugar']]
+    valueY = raw_patient_data['diagnosis']
 
     # Scale the features
     scaler = StandardScaler()
-    X_scaled = scaler.fit_transform(X)
+    xScaled = scaler.fit_transform(valueX)
 
     # 80/20 train-test split
-    X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.2, random_state=42)
+    trainValueX, testValueX, trainValueY, testValueY = train_test_split(xScaled, valueY, test_size=0.2, random_state=42)
 
     # Train three classification models
-    dt_classifier = DecisionTreeClassifier(max_depth=3)
-    dt_classifier.fit(X_train, y_train)
+    dtValue = DecisionTreeClassifier(max_depth=3)
+    dtValue.fit(trainValueX, trainValueY)
 
-    rf_classifier = RandomForestClassifier()
-    rf_classifier.fit(X_train, y_train)
-
-    knn_classifier = KNeighborsClassifier()
-    knn_classifier.fit(X_train, y_train)
+    rfValue = RandomForestClassifier()
+    rfValue.fit(trainValueX, trainValueY)
+    
+    knnValue = KNeighborsClassifier()
+    knnValue.fit(trainValueX, trainValueY)
 
     # Evaluate accuracy
-    dt_accuracy = accuracy_score(y_test, dt_classifier.predict(X_test))
-    rf_accuracy = accuracy_score(y_test, rf_classifier.predict(X_test))
-    knn_accuracy = accuracy_score(y_test, knn_classifier.predict(X_test))
+    dtAccuracy = accuracy_score(testValueY, dtValue.predict(testValueX))
+    rfAccuracy = accuracy_score(testValueY, rfValue.predict(testValueX))
+    knnAccuracy = accuracy_score(testValueY, knnValue.predict(testValueX))
 
     print("=" * 30)
     print("Model Accuracy Results")
     print("=" * 30)
     print()
-    print(f"Optimal Tree  -> Accuracy: {dt_accuracy:.2f}")
-    print(f"Random Forest -> Accuracy: {rf_accuracy:.2f}")
-    print(f"K-NN (k=5)    -> Accuracy: {knn_accuracy:.2f}")
+    print(f"Optimal Tree  -> Accuracy: {dtAccuracy:.2f}")
+    print(f"Random Forest -> Accuracy: {rfAccuracy:.2f}")
+    print(f"K-NN (k=5)    -> Accuracy: {knnAccuracy:.2f}")
 
     # Visualize model logic
     print("\n[SYSTEM] Visualizing model logic... (Close the plot window to continue to input)")
 
     feature_names = ['Age', 'BMI', 'Blood Sugar']
-    feature_importance = dt_classifier.feature_importances_
+    feature_importance = dtValue.feature_importances_
     plt.figure(figsize=(24,10))
 
     # Graph A Feature Importance
@@ -84,7 +84,7 @@ def main():
 
     # Graph B Tree Structure
     plt.subplot(1, 2, 2)
-    plot_tree(dt_classifier, feature_names=feature_names, class_names=['No Risk', 'Risk'], filled=True)
+    plot_tree(dtValue, feature_names=feature_names, class_names=['No Risk', 'Risk'], filled=True)
     plt.title('Decision Tree Structure')
 
     plt.show()
@@ -100,22 +100,22 @@ def main():
         blood_sugar = float(input("Enter Blood Sugar: "))
 
         # Create patient DataFrame with feature names
-        patient_df = pd.DataFrame({
+        patientData = pd.DataFrame({
             'age': [age],
             'bmi': [bmi],
             'blood_sugar': [blood_sugar]
         })
-        patient = scaler.transform(patient_df)
+        patient = scaler.transform(patientData)
         labels = {0: "Healthy", 1: "At Risk"}
 
-        dt_vote = dt_classifier.predict(patient)[0]
-        rf_vote = rf_classifier.predict(patient)[0]
-        knn_vote = knn_classifier.predict(patient)[0]
+        dtPatientValue = dtValue.predict(patient)[0]
+        rfPatientValue = rfValue.predict(patient)[0]
+        knnPatientValue = knnValue.predict(patient)[0]
 
         print(f"\n[Voting Results]")
-        print(f"Decision Tree: {labels[dt_vote]}")
-        print(f"Random Forest: {labels[rf_vote]}")
-        print(f"K-NN (k=5):    {labels[knn_vote]}")
+        print(f"Decision Tree: {labels[dtPatientValue]}")
+        print(f"Random Forest: {labels[rfPatientValue]}")
+        print(f"K-NN (k=5):    {labels[knnPatientValue]}")
     except ValueError:
         print("Invalid input. Needs to be a number.")
 
