@@ -18,8 +18,8 @@ class NeuralThermostat:
         self.learning_rate = 0.5 # Higher learning rate for faster convergence on small data
 
       
-    def sigmoid(self, z):
-        return 1 / (1 + np.exp(-z))
+    def sigmoid(self, x):
+          return 1 / (1 + np.exp(-x))
 
     def predict(self, x1, x2):
         z = (x1 * self.w1) + (x2 * self.w2) + self.bias
@@ -41,6 +41,8 @@ class NeuralThermostat:
             # Keep track of the average loss for this epoch
             losses.append(total_loss / len(X))
         return losses
+    
+# --- PROJECT DATASET ---
 # Features: [Temperature (0-1), PeopleCount (0-1)]
 # Targets: 1 (AC On), 0 (AC Off)
 X_train = np.array([
@@ -69,8 +71,8 @@ history = agent.train(X_train, y_train)
 print("\n--- After Training ---")
 print(f"Final Weights: w1={agent.w1:.2f}, w2={agent.w2:.2f}, b={agent.bias:.2f}")
 final_pred = agent.predict(0.9, 0.2)
-print(f"Prediction for [0.9, 0.2]: {final_pred if final_pred is not None else 'No Output Yet'}")
 
+print(f"Prediction for [0.9, 0.2]: {final_pred if final_pred is not None else 'No Output Yet'}")
 if history:
     plt.figure(figsize=(10, 5))
     plt.plot(history, color='blue', linewidth=2)
