@@ -1,0 +1,19 @@
+
+I would use some small 3×3 filters stacked on top of each other. 
+The smaller the filter the better its able to see the little details, like telling the difference between an S and a 5.
+I am using zero padding, which adds a border of zeros around the image before each filter pass. 
+If i didnt have it there, the edges of images can get clipped and character letters that might run of the page.
+
+I would use MaxPool, placed late in the network, with a stride of 1 throughout the layers. 
+If I pool aggressively early I can mess up some spatial details before 
+the network had a chance to learn it. Misreading a serial number on machinery could mess up a few things.
+
+I would for sure use a premade Transfer Learning model rather than training from scratch.
+It already knows how to do what i need it to. I think lighting has always been the main issue with images. 
+So i would train it for brightness to make dim images look better.
+
+I used small 3x3 filters because the detail matters more than the big picture when reading characters.
+I kept zero padding because I dont want to lose anything at the edges before the network had a chance to looks at it.
+I used MaxPool late and used stride 1 because I didnt want to throw away detail before the network learned anything.
+I picked transfer learning because it already knows the basics, so I just need to point it at my problem.
+I went with brightness because low lite images have been a well known issue.
